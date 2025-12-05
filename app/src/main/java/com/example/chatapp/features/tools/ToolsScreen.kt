@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -148,12 +149,12 @@ fun ToolsScreen(
                 MetricsRow()
             }
 
-            // For You Section (main header with divider)
+            // For You Section
             item {
                 SectionDividerWithHeader(
                     headerText = "For you",
                     isSubheader = false,
-                    showDivider = true
+                    showDivider = false
                 )
             }
 
@@ -344,20 +345,23 @@ private fun SectionDividerWithHeader(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    
+    // Subheaders (like "Last 7 days performance"): 16dp spacer above, 0dp top padding, 8dp bottom
+    // Main headers (like "For you", "Grow your business"): 18dp top, 8dp bottom
+    val topPadding = if (isSubheader) 0.dp else 18.dp
+    val bottomPadding = dimensions.wdsSpacingSingle // 8dp
 
     Column {
-        // Space above
-        Spacer(modifier = Modifier.height(dimensions.wdsSpacingSingle))
-        
-        // Optional divider line (0.5dp)
-        if (showDivider) {
+        // Spacer for subheaders (16dp) or divider for main headers
+        if (isSubheader) {
+            Spacer(modifier = Modifier.height(dimensions.wdsSpacingDouble)) // 16dp
+        } else if (showDivider) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(dimensions.wdsBorderWidthThin)
                     .background(colors.colorDivider)
             )
-            Spacer(modifier = Modifier.height(dimensions.wdsSpacingSingle))
         }
         
         // Header row
@@ -367,8 +371,8 @@ private fun SectionDividerWithHeader(
                 .padding(
                     start = dimensions.wdsSpacingDouble,
                     end = dimensions.wdsSpacingDouble,
-                    top = 0.dp,
-                    bottom = dimensions.wdsSpacingSingle
+                    top = topPadding,
+                    bottom = bottomPadding
                 ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(dimensions.wdsSpacingHalf)
@@ -524,7 +528,7 @@ private fun MetricTileWithCustomIcon(
     val typography = WdsTheme.typography
 
     Card(
-        modifier = modifier,
+        modifier = modifier.height(96.dp),
         shape = WdsTheme.shapes.double,
         colors = CardDefaults.cardColors(
             containerColor = colors.colorSurfaceDefault
@@ -532,7 +536,9 @@ private fun MetricTileWithCustomIcon(
         border = CardDefaults.outlinedCardBorder()
     ) {
         Column(
-            modifier = Modifier.padding(dimensions.wdsSpacingSinglePlus)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(dimensions.wdsSpacingSinglePlus)
         ) {
             Icon(
                 imageVector = customIcon,
@@ -578,7 +584,7 @@ private fun MetricTile(
     val typography = WdsTheme.typography
 
     Card(
-        modifier = modifier,
+        modifier = modifier.height(96.dp),
         shape = WdsTheme.shapes.double,
         colors = CardDefaults.cardColors(
             containerColor = colors.colorSurfaceDefault
@@ -586,7 +592,9 @@ private fun MetricTile(
         border = CardDefaults.outlinedCardBorder()
     ) {
         Column(
-            modifier = Modifier.padding(dimensions.wdsSpacingSinglePlus)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(dimensions.wdsSpacingSinglePlus)
         ) {
             Icon(
                 imageVector = icon,
@@ -705,17 +713,19 @@ private fun RecommendationCard(
                         style = typography.body2,
                         color = colors.colorContentDeemphasized
                     )
-                    // CTA Button
+                    // CTA Button - 32dp height, 64dp min width per Figma
                     Spacer(modifier = Modifier.height(dimensions.wdsSpacingHalf))
                     Box(
                         modifier = Modifier
+                            .defaultMinSize(minWidth = 64.dp, minHeight = 32.dp)
                             .clip(WdsTheme.shapes.circle)
                             .background(colors.colorAccent)
                             .clickable { }
                             .padding(
                                 horizontal = dimensions.wdsSpacingDouble,
                                 vertical = 6.dp
-                            )
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = ctaText,

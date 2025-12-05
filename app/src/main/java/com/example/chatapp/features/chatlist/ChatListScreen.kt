@@ -678,7 +678,7 @@ fun ChatListBottomBar(
                     badge = {
                         if (unreadChats > 0) {
                             Badge(
-                                containerColor = WdsTheme.colors.colorAccent,
+                                containerColor = WdsTheme.colors.colorAlwaysBranded,
                                 contentColor = WdsTheme.colors.colorContentOnAccent
                             ) {
                                 Text(
@@ -720,7 +720,7 @@ fun ChatListBottomBar(
                     badge = {
                         if (callsBadgeCount > 0) {
                             Badge(
-                                containerColor = WdsTheme.colors.colorAccent,
+                                containerColor = WdsTheme.colors.colorAlwaysBranded,
                                 contentColor = WdsTheme.colors.colorContentOnAccent
                             ) {
                                 Text(
@@ -763,7 +763,7 @@ fun ChatListBottomBar(
                         if (hasUpdates) {
                             Badge(
                                 modifier = Modifier.size(WdsTheme.dimensions.wdsSpacingSingle),
-                                containerColor = WdsTheme.colors.colorAccent
+                                containerColor = WdsTheme.colors.colorAlwaysBranded
                             )
                         }
                     }
