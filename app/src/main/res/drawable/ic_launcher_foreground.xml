@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Match original logo size: 70% of 60dp = 42dp, centered in 108dp canvas -->
+    <item
+        android:width="42dp"
+        android:height="42dp"
+        android:drawable="@drawable/ic_whatsapp_business_text_logo"
+        android:gravity="center" />
+</layer-list>
