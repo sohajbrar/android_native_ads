@@ -69,6 +69,9 @@ abstract class WdsColorScheme {
     abstract val colorSurfacePressed: Color
     abstract val colorWarning: Color
     abstract val colorWarningDeemphasized: Color
+
+    // Business Broadcast
+    abstract val colorBroadcastAvatar: Color
 }
 
 /**

@@ -47,7 +47,7 @@ class WdsSemanticBusinessLightColors : WdsColorScheme() {
     override val colorChatForegroundWallpaper = BaseColors.wdsCream150
     
     // Action colors use dark accent instead of green
-    override val colorContentActionEmphasized = BaseColors.wdsWarmGray900  // #171616
+    override val colorContentActionEmphasized = BaseColors.wdsGreen600  // #1B8755
     
     override val colorContentDeemphasized = BaseColors.wdsCoolGray600
     override val colorContentDefault = BaseColors.wdsCoolGray1000
@@ -84,6 +84,9 @@ class WdsSemanticBusinessLightColors : WdsColorScheme() {
     override val colorSurfacePressed = BaseColors.wdsCoolGrayAlpha20
     override val colorWarning = BaseColors.wdsYellow400
     override val colorWarningDeemphasized = BaseColors.wdsYellow75
+
+    // ===== BUSINESS BROADCAST =====
+    override val colorBroadcastAvatar = BaseColors.wdsCoolGray250  // #D1D7DB
 
     // ===== COLOR ALIASES =====
     override val colorBackgroundDimmer = BaseColors.wdsBlackAlpha40

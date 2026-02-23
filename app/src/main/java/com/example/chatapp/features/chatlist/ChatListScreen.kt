@@ -26,9 +26,7 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.material3.DockedSearchBar
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.ui.graphics.RectangleShape
+import com.example.chatapp.wds.components.WDSSearchBar
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -250,157 +248,107 @@ private fun ChatListMainContent(
             .background(WdsTheme.colors.colorSurfaceDefault)
             .padding(LocalPaddingValues.current ?: PaddingValues(0.dp))
         ) {
-            // Material 3 Search Bar that transforms to Search View
+            // WDS Search Bar
             item {
-                // Get keyboard controller
+                val colors = WdsTheme.colors
+                val dimensions = WdsTheme.dimensions
+                val typography = WdsTheme.typography
+                val shapes = WdsTheme.shapes
                 val keyboardController = LocalSoftwareKeyboardController.current
-                
-                // Instant padding switch based on search active state
-                val horizontalPadding = if (searchActive) 0.dp else WdsTheme.dimensions.wdsSpacingDouble
-                val verticalPadding = if (searchActive) 0.dp else WdsTheme.dimensions.wdsSpacingHalf
-                
-                DockedSearchBar(
-                    query = searchQuery,
-                    onQueryChange = onSearchQueryChange,
-                    onSearch = {
-                        // Handle search submission - dismiss keyboard
-                        keyboardController?.hide()
-                    },
-                    active = searchActive,
-                    onActiveChange = onSearchActiveChange,
-                    tonalElevation = 0.dp,  // Disable surface tint overlay
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = horizontalPadding,
-                            vertical = verticalPadding
-                        ),
-                    placeholder = {
-                        Text(
-                            text = "Ask Meta AI or Search",
-                            color = WdsTheme.colors.colorContentDeemphasized
-                        )
-                    },
-                    leadingIcon = {
-                        if (searchActive) {
-                            IconButton(onClick = {
-                                onSearchActiveChange(false)
-                                onSearchQueryChange("")
-                            }) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back",
-                                    tint = WdsTheme.colors.colorContentDeemphasized
-                                )
-                            }
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                tint = WdsTheme.colors.colorContentDeemphasized
-                            )
-                        }
-                    },
-                    trailingIcon = {
-                        if (searchActive && searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { onSearchQueryChange("") }) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Clear",
-                                    tint = WdsTheme.colors.colorContentDeemphasized
-                                )
-                            }
-                        }
-                    },
-                    colors = SearchBarDefaults.colors(
-                        containerColor = if (searchActive) WdsTheme.colors.colorSurfaceDefault else WdsTheme.colors.colorSurfaceEmphasized,
-                        dividerColor = Color.Transparent
-                    ),
-                    shape = if (searchActive) RectangleShape else RoundedCornerShape(com.example.chatapp.wds.tokens.BaseDimensions.wdsCornerRadiusCircle)
-                ) {
-                    // Search results content - full height container
-                    Column(
+
+                if (searchActive) {
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(WdsTheme.colors.colorSurfaceDefault)
+                            .fillMaxWidth()
+                            .padding(
+                                start = dimensions.wdsSpacingHalf,
+                                end = dimensions.wdsSpacingDouble,
+                                top = dimensions.wdsSpacingHalf,
+                                bottom = dimensions.wdsSpacingHalf
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Search filter pills - always show when search is active
-                        if (searchActive) {
-                            SearchFilterPills(
-                                selectedFilter = selectedSearchFilter,
-                                onFilterSelected = onSearchFilterSelected
+                        IconButton(onClick = {
+                            onSearchActiveChange(false)
+                            onSearchQueryChange("")
+                            keyboardController?.hide()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = colors.colorContentDefault
                             )
-                            
-                            // Divider line with padding
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = WdsTheme.dimensions.wdsSpacingHalf)
-                            ) {
-                                HorizontalDivider(
-                                    color = WdsTheme.colors.colorDivider,
-                                    thickness = WdsTheme.dimensions.wdsBorderWidthThin
-                                )
-                            }
                         }
-                        
-                        // Search results only when typing
-                        Box(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            if (searchQuery.isEmpty()) {
-                                // Nothing to show when search is empty
-                            } else if (filteredConversations.isEmpty()) {
-                                // No results
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "No results found",
-                                        style = WdsTheme.typography.body2,
-                                        color = WdsTheme.colors.colorContentDeemphasized
+
+                        WDSSearchBar(
+                            query = searchQuery,
+                            onQueryChange = onSearchQueryChange,
+                            placeholder = "Ask Meta AI or Search",
+                            modifier = Modifier.weight(1f),
+                            trailingContent = if (searchQuery.isNotEmpty()) {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Close,
+                                        contentDescription = "Clear",
+                                        modifier = Modifier
+                                            .size(dimensions.wdsIconSizeMedium)
+                                            .clickable { onSearchQueryChange("") },
+                                        tint = colors.colorContentDeemphasized
                                     )
                                 }
-                            } else {
-                                // Show filtered conversations
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    items(filteredConversations.size) { index ->
-                                        val conversation = filteredConversations[index]
-                                        WDSChatListItem(
-                                            title = conversation.title,
-                                            subtitle = conversation.subtitle,
-                                            avatarUrl = conversation.avatarUrl,
-                                            lastMessage = conversation.lastMessage,
-                                            lastMessageTime = conversation.lastMessageTime,
-                                            lastMessageSender = conversation.lastMessageSender,
-                                            lastMessageType = conversation.lastMessageType,
-                                            unreadCount = conversation.unreadCount,
-                                            isGroup = conversation.isGroup,
-                                            isSentByUser = conversation.isSentByUser,
-                                            isRead = conversation.isRead,
-                                            isMissedCall = conversation.isMissedCall,
-                                            onClick = {
-                                                onChatClick(conversation.id)
-                                                onSearchActiveChange(false)
-                                                onSearchQueryChange("")
-                                                onSearchFilterSelected("")
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                            } else null,
+                            onSearch = { keyboardController?.hide() }
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = dimensions.wdsSpacingDouble,
+                                vertical = dimensions.wdsSpacingHalf
+                            )
+                            .height(48.dp)
+                            .clip(shapes.circle)
+                            .background(colors.colorSurfaceHighlight)
+                            .clickable { onSearchActiveChange(true) }
+                            .padding(
+                                horizontal = dimensions.wdsSpacingDouble,
+                                vertical = dimensions.wdsSpacingSingle
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Search,
+                            contentDescription = null,
+                            modifier = Modifier.size(dimensions.wdsIconSizeMedium),
+                            tint = colors.colorContentDeemphasized
+                        )
+
+                        Text(
+                            text = "Ask Meta AI or Search",
+                            style = typography.body1,
+                            color = colors.colorContentDeemphasized,
+                            modifier = Modifier.padding(horizontal = dimensions.wdsSpacingSingle)
+                        )
                     }
                 }
             }
             
-            // Filter Chips - Instant switch between inbox and search filters
+            // Filter Chips
             item {
-                if (!searchActive) {
+                if (searchActive) {
+                    Column {
+                        SearchFilterPills(
+                            selectedFilter = selectedSearchFilter,
+                            onFilterSelected = onSearchFilterSelected
+                        )
+                        HorizontalDivider(
+                            color = WdsTheme.colors.colorDivider,
+                            thickness = WdsTheme.dimensions.wdsBorderWidthThin
+                        )
+                    }
+                } else {
                     FilterChips(
                         selectedFilter = uiState.selectedFilter,
                         onFilterSelected = { viewModel.selectFilter(it) },
@@ -411,22 +359,52 @@ private fun ChatListMainContent(
                     )
                 }
             }
-            
-            // Archived Row - HIDDEN FOR DEMO (can be restored later)
-            // Uncomment below to show archived row again
-            /*
-            if (!searchActive && uiState.archivedCount > 0 && uiState.selectedFilter == ChatFilter.ALL) {
-                item {
-                    ArchivedRow(
-                        count = uiState.archivedCount,
-                        onClick = { /* Handle archived click */ }
-                    )
+
+            // Search results when search is active
+            if (searchActive && searchQuery.isNotEmpty()) {
+                if (filteredConversations.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(WdsTheme.dimensions.wdsSpacingQuad),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No results found",
+                                style = WdsTheme.typography.body2,
+                                color = WdsTheme.colors.colorContentDeemphasized
+                            )
+                        }
+                    }
+                } else {
+                    items(filteredConversations.size) { index ->
+                        val conversation = filteredConversations[index]
+                        WDSChatListItem(
+                            title = conversation.title,
+                            subtitle = conversation.subtitle,
+                            avatarUrl = conversation.avatarUrl,
+                            lastMessage = conversation.lastMessage,
+                            lastMessageTime = conversation.lastMessageTime,
+                            lastMessageSender = conversation.lastMessageSender,
+                            lastMessageType = conversation.lastMessageType,
+                            unreadCount = conversation.unreadCount,
+                            isGroup = conversation.isGroup,
+                            isSentByUser = conversation.isSentByUser,
+                            isRead = conversation.isRead,
+                            isMissedCall = conversation.isMissedCall,
+                            onClick = {
+                                onChatClick(conversation.id)
+                                onSearchActiveChange(false)
+                                onSearchQueryChange("")
+                                onSearchFilterSelected("")
+                            }
+                        )
+                    }
                 }
             }
-            */
-            
+
             // Chat Items
-            // Hide main conversation list when search is active
             if (!searchActive) {
                 items(
                     items = uiState.conversations,
@@ -528,8 +506,6 @@ private fun ChatListTopBar(
         )
     )
 }
-
-// Old SearchBar removed - using Material 3 SearchBar component instead
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -210,8 +210,7 @@ fun ChatContentView(
                         viewModel.sendMessage()
                     },
                     onAttachClick = { /* TODO */ },
-                    onCameraClick = { /* TODO */ },
-                    onMicClick = { /* TODO */ }
+                    onCameraClick = { /* TODO */ }
                 )
             },
             containerColor = Color.Transparent,

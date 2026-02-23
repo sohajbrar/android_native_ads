@@ -60,6 +60,9 @@ open class WdsSemanticLightColors : WdsColorScheme() {
     override val colorWarning = BaseColors.wdsYellow400
     override val colorWarningDeemphasized = BaseColors.wdsYellow75
 
+    // Business Broadcast
+    override val colorBroadcastAvatar = BaseColors.wdsCoolGray250  // #D1D7DB
+
     // These colors are aliases
     override val colorBackgroundDimmer = Color(0x52000000)
     override val colorBubbleContentBusiness = colorContentDeemphasized

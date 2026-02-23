@@ -38,7 +38,7 @@ WhatsApp Business is a **fully functional chat application** that replicates the
 
 1. **Clone or download** the project
 2. **Open Android Studio** and select "Open an Existing Project"
-3. Navigate to the **SimpleWhatsApp** folder
+3. Navigate to the **WA_Business_Broadcast** folder
 4. Wait for Gradle sync to complete
 5. **Click ▶️ to run the app** on an emulator or device
 
@@ -48,14 +48,14 @@ WhatsApp Business is a **fully functional chat application** that replicates the
 
 1. **Join [Cursor Feedback](https://fb.workplace.com/groups/725594866994618)** to get access to Cursor
 2. **Download** and **install Cursor**
-3. **Open the SimpleWhatsApp folder** in Cursor
+3. **Open the WA_Business_Broadcast folder** in Cursor
 4. The AI assistant will automatically understand the project structure and design system rules
 5. **Prompt Cursor** to make changes - it will follow WDS guidelines
 6. **Return to Android Studio** and **click ▶️ to rebuild the app**
 
 ### In VS Code @ FB
 
-1. **Open the SimpleWhatsApp folder** in **VS Code @ FB**
+1. **Open the WA_Business_Broadcast folder** in **VS Code @ FB**
 2. Select **Devmate** in the left navigation bar
 3. **Prompt Devmate** to make changes
 4. **Return to Android Studio** and **click ▶️ to rebuild the app**
@@ -247,7 +247,7 @@ The app includes **Material Icons Extended**, providing access to **~2000 Materi
 **Using Icons in Designs:**
 When designing in Figma or other tools, reference icons by their Material name (e.g., "Settings", "Palette", "Share"). The development team can implement the exact icon using the Material Icons library.
 
-**Common Icons in SimpleWhatsApp:**
+**Common Icons in WA_Business_Broadcast:**
 - `Palette` - Design Library menu
 - `Settings` - App settings
 - `Share` - Share functionality

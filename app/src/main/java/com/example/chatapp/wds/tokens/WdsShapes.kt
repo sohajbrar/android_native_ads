@@ -28,6 +28,18 @@ class WdsShapes(
     val halfPlus: CornerBasedShape = RoundedCornerShape(BaseDimensions.wdsCornerRadiusHalfPlus),
     val single: CornerBasedShape = RoundedCornerShape(BaseDimensions.wdsCornerRadiusSingle),
     val singlePlus: CornerBasedShape = RoundedCornerShape(BaseDimensions.wdsCornerRadiusSinglePlus),
+    val singlePlusTop: CornerBasedShape = RoundedCornerShape(
+        topStart = BaseDimensions.wdsCornerRadiusSinglePlus,
+        topEnd = BaseDimensions.wdsCornerRadiusSinglePlus,
+        bottomStart = BaseDimensions.wdsCornerRadiusNone,
+        bottomEnd = BaseDimensions.wdsCornerRadiusNone
+    ),
+    val singlePlusBottom: CornerBasedShape = RoundedCornerShape(
+        topStart = BaseDimensions.wdsCornerRadiusNone,
+        topEnd = BaseDimensions.wdsCornerRadiusNone,
+        bottomStart = BaseDimensions.wdsCornerRadiusSinglePlus,
+        bottomEnd = BaseDimensions.wdsCornerRadiusSinglePlus
+    ),
     val double: CornerBasedShape = RoundedCornerShape(BaseDimensions.wdsCornerRadiusDouble),
     val triple: CornerBasedShape = RoundedCornerShape(BaseDimensions.wdsCornerRadiusTriple),
     val triplePlus: CornerBasedShape = RoundedCornerShape(BaseDimensions.wdsCornerRadiusTriplePlus),

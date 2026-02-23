@@ -291,6 +291,11 @@ private fun ChatListAvatar(
                     "avatar_anika" -> R.drawable.avatar_anika
                     "avatar_gerald" -> R.drawable.avatar_gerald
                     "avatar_yuna" -> R.drawable.avatar_yuna
+                    "avatar_alice" -> R.drawable.avatar_alice
+                    "avatar_anna_soe" -> R.drawable.avatar_anna_soe
+                    "avatar_anika_chavan" -> R.drawable.avatar_anika_chavan
+                    "avatar_ayesha" -> R.drawable.avatar_ayesha
+                    "avatar_jordan" -> R.drawable.avatar_jordan
                     else -> null
                 }
 

@@ -50,12 +50,11 @@ object ChatDataGenerator {
         "+1 (555) 012-3456"
     )
     
-    // Status messages for business customers
     private val statusMessages = listOf(
-        "Available", "Busy", "Out for lunch", "In a meeting", "Working from home",
-        "At the office", "Do not disturb", "Away", "Be right back", "In a call",
-        "Plant shopping 🌿", "Garden planning", "Living the dream", "Green thumb life 🌱",
-        "Home improvement", "Weekend gardening", "Patio project", null, null, null
+        "Available", "Busy", "Available", "Busy", "Available",
+        "Available", "Busy", "Available", "Busy", "Available",
+        "Available", "Busy", "Available", "Available", "Busy",
+        "Available", "Busy", "Available", "Busy", "Available"
     )
     
     // Business customer messages (short)
@@ -385,40 +384,32 @@ object ChatDataGenerator {
                 friendFirstNames[fNameIndex] to friendLastNames[lNameIndex]
             }
             
-            // Some contacts show as phone numbers - include early indices to show in top threads
-            // user_2, user_5, user_8, user_10, user_13, user_15, user_18, user_20, etc.
-            val phoneIndices = listOf(2, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30, 33, 35, 38, 40)
-            val usePhoneNumber = isBusinessCustomer && phoneIndices.contains(index)
-            
-            // Some business customers only use first names (more casual/familiar)
-            // Makes the chat feel more personal and natural for a business
-            val firstNameOnlyIndices = listOf(4, 9, 11, 14, 16, 19, 21, 24, 26, 29)
-            val useFirstNameOnly = isBusinessCustomer && firstNameOnlyIndices.contains(index)
-            
-            val displayName = if (usePhoneNumber) {
-                // Map index to phone number
-                val phoneIndex = phoneIndices.indexOf(index) % phoneNumbers.size
-                phoneNumbers[phoneIndex]
-            } else if (useFirstNameOnly) {
-                firstName
-            } else {
-                "$firstName $lastName"
-            }
+            val nameOverrides = mapOf(
+                2 to "Alice",
+                3 to "Anna Soe",
+                4 to "Anika Chavan",
+                5 to "Ayesha",
+                6 to "Jordan",
+                7 to "Maria Torres"
+            )
+
+            val displayName = nameOverrides[index] ?: "$firstName $lastName"
             
             val userNum = 100 + index // Deterministic user number
             val username = "${firstName.lowercase()}.${lastName.lowercase()}$userNum"
             val isOnline = index % 3 == 0 // Every 3rd user is online (deterministic)
             
-            // Assign specific profile pictures from drawable resources
             val avatarUrl = when (index) {
-                2 -> "drawable://avatar_contact_placeholder"  // +1 (555) 123-4567
-                3 -> "drawable://avatar_faith"                // David Carter
-                5 -> "drawable://avatar_contact_placeholder"  // +1 (555) 234-5678
-                6 -> "drawable://avatar_maria"                // Maria
-                8 -> "drawable://avatar_anika"                // +1 (555) 345-6789
-                9 -> "drawable://avatar_gerald"               // Christopher
-                12 -> "drawable://avatar_contact_placeholder" // Karen Bell
-                else -> null  // Use initials for other users
+                2 -> "drawable://avatar_alice"
+                3 -> "drawable://avatar_anna_soe"
+                4 -> "drawable://avatar_anika_chavan"
+                5 -> "drawable://avatar_ayesha"
+                6 -> "drawable://avatar_jordan"
+                7 -> "drawable://avatar_maria"
+                8 -> "drawable://avatar_faith"
+                9 -> "drawable://avatar_gerald"
+                10 -> "drawable://avatar_yuna"
+                else -> null
             }
             
             UserEntity(

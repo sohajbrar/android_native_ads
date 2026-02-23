@@ -41,7 +41,19 @@ import com.example.chatapp.wds.components.WDSBottomSheet
 import com.example.chatapp.wds.components.WDSBottomSheetItem
 import com.example.chatapp.wds.components.WDSContextMenu
 import com.example.chatapp.wds.components.WDSContextMenuItem
+import com.example.chatapp.wds.components.WDSSearchBar
+import com.example.chatapp.wds.components.WDSSectionDivider
+import com.example.chatapp.wds.components.WDSSupportedButton
+import com.example.chatapp.wds.components.WDSBottomBar
+import com.example.chatapp.wds.components.WDSContentRow
+import com.example.chatapp.wds.components.WDSTopBar
+import com.example.chatapp.data.local.entity.MessageEntity
+import com.example.chatapp.data.local.entity.MessageType
+import com.example.chatapp.features.broadcast.MessageActionButton
+import com.example.chatapp.features.chat.components.MessageItem
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
 
@@ -85,6 +97,20 @@ fun ComponentsScreen(
                 .padding(paddingValues),
             contentPadding = PaddingValues(vertical = WdsTheme.dimensions.wdsSpacingDouble)
         ) {
+            // Top Bar Section
+            item {
+                ComponentSection(title = "Top Bar") {
+                    TopBarSection()
+                }
+            }
+
+            // Search Bar Section
+            item {
+                ComponentSection(title = "Search Bar") {
+                    SearchBarSection()
+                }
+            }
+
             // Buttons Section
             item {
                 ComponentSection(title = "Buttons") {
@@ -127,6 +153,13 @@ fun ComponentsScreen(
                 }
             }
             
+            // Section Divider Section
+            item {
+                ComponentSection(title = "Section Dividers") {
+                    SectionDividerSection()
+                }
+            }
+
             // Dialog Section
             item {
                 ComponentSection(title = "Dialogs") {
@@ -149,6 +182,27 @@ fun ComponentsScreen(
                         onShowMenu = { showContextMenu = true },
                         onDismissMenu = { showContextMenu = false }
                     )
+                }
+            }
+
+            // Content Row Section
+            item {
+                ComponentSection(title = "Content Row") {
+                    ContentRowSection()
+                }
+            }
+
+            // Bottom Bar Section
+            item {
+                ComponentSection(title = "Bottom Bar") {
+                    BottomBarSection()
+                }
+            }
+
+            // Message Item Section
+            item {
+                ComponentSection(title = "Message Item") {
+                    MessageItemSection()
                 }
             }
         }
@@ -196,6 +250,71 @@ fun ComponentsScreen(
             onPrimaryClick = { showBottomSheet = false },
             secondaryButtonText = "Secondary action",
             onSecondaryClick = { showBottomSheet = false }
+        )
+    }
+}
+
+@Composable
+private fun TopBarSection() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = WdsTheme.dimensions.wdsSpacingDouble),
+        verticalArrangement = Arrangement.spacedBy(WdsTheme.dimensions.wdsSpacingDouble)
+    ) {
+        Text("Basic", style = WdsTheme.typography.body3, color = WdsTheme.colors.colorContentDeemphasized)
+        WDSTopBar(
+            title = "Screen Title",
+            onNavigateBack = { }
+        )
+
+        Text("With Actions", style = WdsTheme.typography.body3, color = WdsTheme.colors.colorContentDeemphasized)
+        WDSTopBar(
+            title = "New chat",
+            onNavigateBack = { },
+            actions = {
+                IconButton(onClick = { }) {
+                    Icon(
+                        imageVector = Icons.Outlined.MoreVert,
+                        contentDescription = "More options",
+                        tint = WdsTheme.colors.colorContentDefault
+                    )
+                }
+            }
+        )
+
+        Text("With Subtitle", style = WdsTheme.typography.body3, color = WdsTheme.colors.colorContentDeemphasized)
+        WDSTopBar(
+            title = "Select contact",
+            subtitle = "0 of 2,000 selected",
+            onNavigateBack = { },
+            actions = {
+                IconButton(onClick = { }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Search,
+                        contentDescription = "Search",
+                        tint = WdsTheme.colors.colorContentDefault
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun SearchBarSection() {
+    var query1 by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = WdsTheme.dimensions.wdsSpacingDouble),
+        verticalArrangement = Arrangement.spacedBy(WdsTheme.dimensions.wdsSpacingDouble)
+    ) {
+        WDSSearchBar(
+            query = query1,
+            onQueryChange = { query1 = it },
+            placeholder = "Search"
         )
     }
 }
@@ -598,6 +717,48 @@ private fun DividerSection() {
 }
 
 @Composable
+private fun SectionDividerSection() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(WdsTheme.dimensions.wdsSpacingDouble)
+    ) {
+        Text(
+            "With Supported Button",
+            style = WdsTheme.typography.body3,
+            color = WdsTheme.colors.colorContentDeemphasized,
+            modifier = Modifier.padding(horizontal = WdsTheme.dimensions.wdsSpacingDouble)
+        )
+        WDSSectionDivider(
+            title = "Your lists",
+            actionText = "See all",
+            onActionClick = { }
+        )
+
+        Text(
+            "Without Action",
+            style = WdsTheme.typography.body3,
+            color = WdsTheme.colors.colorContentDeemphasized,
+            modifier = Modifier.padding(horizontal = WdsTheme.dimensions.wdsSpacingDouble)
+        )
+        WDSSectionDivider(title = "Contacts on WhatsApp")
+
+        Text(
+            "Supported Button Standalone",
+            style = WdsTheme.typography.body3,
+            color = WdsTheme.colors.colorContentDeemphasized,
+            modifier = Modifier.padding(horizontal = WdsTheme.dimensions.wdsSpacingDouble)
+        )
+        Row(
+            modifier = Modifier.padding(horizontal = WdsTheme.dimensions.wdsSpacingDouble),
+            horizontalArrangement = Arrangement.spacedBy(WdsTheme.dimensions.wdsSpacingSingle)
+        ) {
+            WDSSupportedButton(text = "See all", onClick = { })
+            WDSSupportedButton(text = "Edit", onClick = { })
+        }
+    }
+}
+
+@Composable
 private fun DialogSection(onShowDialog: () -> Unit) {
     Column(
         modifier = Modifier
@@ -671,6 +832,142 @@ private fun ContextMenuSection(
                     onClick = { }
                 )
             )
+        )
+    }
+}
+
+@Composable
+private fun ContentRowSection() {
+    val colors = WdsTheme.colors
+    val dimensions = WdsTheme.dimensions
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(dimensions.wdsSpacingHalf)
+    ) {
+        Text(
+            text = "With Drawable Icon",
+            style = WdsTheme.typography.body3,
+            color = colors.colorContentDeemphasized,
+            modifier = Modifier.padding(horizontal = dimensions.wdsSpacingDouble)
+        )
+        WDSContentRow(
+            iconRes = com.example.chatapp.R.drawable.ic_business_broadcast,
+            label = "Available credit",
+            value = "250 messages"
+        )
+
+        Spacer(modifier = Modifier.height(dimensions.wdsSpacingSingle))
+
+        Text(
+            text = "With Trailing Action",
+            style = WdsTheme.typography.body3,
+            color = colors.colorContentDeemphasized,
+            modifier = Modifier.padding(horizontal = dimensions.wdsSpacingDouble)
+        )
+        WDSContentRow(
+            iconRes = com.example.chatapp.R.drawable.ic_business_broadcast,
+            label = "Audience",
+            value = "303 recipients",
+            trailingContent = {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = "Edit",
+                    modifier = Modifier.size(dimensions.wdsIconSizeMedium),
+                    tint = colors.colorContentDefault
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun BottomBarSection() {
+    WDSBottomBar(
+        label = "New order",
+        onClick = {}
+    )
+}
+
+@Composable
+private fun MessageItemSection() {
+    val dimensions = WdsTheme.dimensions
+
+    val incomingMessage = remember {
+        MessageEntity(
+            messageId = "demo_incoming",
+            conversationId = "demo",
+            senderId = "other_user",
+            content = "Welcome, VIP clients! \uD83C\uDF31 Thanks for joining our community.",
+            timestamp = System.currentTimeMillis(),
+            messageType = MessageType.TEXT
+        )
+    }
+
+    val outgoingMessage = remember {
+        MessageEntity(
+            messageId = "demo_outgoing",
+            conversationId = "demo",
+            senderId = "current_user",
+            content = "Sounds great, thank you!",
+            timestamp = System.currentTimeMillis(),
+            messageType = MessageType.TEXT,
+            isRead = true
+        )
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(dimensions.wdsSpacingSingle)
+    ) {
+        Text(
+            text = "Incoming (Receiver)",
+            style = WdsTheme.typography.body3,
+            color = WdsTheme.colors.colorContentDeemphasized,
+            modifier = Modifier.padding(horizontal = dimensions.wdsSpacingDouble)
+        )
+        MessageItem(
+            message = incomingMessage,
+            isFromCurrentUser = false,
+            isGroupChat = false,
+            senderName = "",
+            senderAvatar = null,
+            showSenderInfo = false
+        )
+
+        Spacer(modifier = Modifier.height(dimensions.wdsSpacingSingle))
+
+        Text(
+            text = "Outgoing (Sender)",
+            style = WdsTheme.typography.body3,
+            color = WdsTheme.colors.colorContentDeemphasized,
+            modifier = Modifier.padding(horizontal = dimensions.wdsSpacingDouble)
+        )
+        MessageItem(
+            message = outgoingMessage,
+            isFromCurrentUser = true,
+            isGroupChat = false,
+            senderName = "",
+            senderAvatar = null,
+            showSenderInfo = false
+        )
+
+        Spacer(modifier = Modifier.height(dimensions.wdsSpacingSingle))
+
+        Text(
+            text = "With Action Button",
+            style = WdsTheme.typography.body3,
+            color = WdsTheme.colors.colorContentDeemphasized,
+            modifier = Modifier.padding(horizontal = dimensions.wdsSpacingDouble)
+        )
+        MessageItem(
+            message = incomingMessage,
+            isFromCurrentUser = false,
+            isGroupChat = false,
+            senderName = "",
+            senderAvatar = null,
+            showSenderInfo = false,
+            actionContent = {
+                MessageActionButton(text = "Add button")
+            }
         )
     }
 }

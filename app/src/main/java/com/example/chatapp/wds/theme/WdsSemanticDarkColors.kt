@@ -58,5 +58,8 @@ open class WdsSemanticDarkColors : WdsSemanticLightColors() {
     override val colorSurfacePressed = BaseColors.wdsWhiteAlpha20
     override val colorWarning = BaseColors.wdsYellow300
     override val colorWarningDeemphasized = BaseColors.wdsYellow800
+
+    // Business Broadcast
+    override val colorBroadcastAvatar = BaseColors.wdsCoolGray700
 }
 

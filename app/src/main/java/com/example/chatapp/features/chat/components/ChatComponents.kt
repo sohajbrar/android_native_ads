@@ -1,9 +1,20 @@
 package com.example.chatapp.features.chat.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ripple
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,10 +22,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.SentimentSatisfiedAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Error
@@ -101,8 +112,9 @@ fun ChatComposer(
     onSendClick: () -> Unit,
     onAttachClick: () -> Unit,
     onCameraClick: () -> Unit,
-    onMicClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isBroadcast: Boolean = false,
+    onStickerClick: () -> Unit = {}
 ) {
     // Cache theme lookups for performance
     val colors = WdsTheme.colors
@@ -155,12 +167,17 @@ fun ChatComposer(
                 .padding(dimensions.wdsSpacingHalf),
             verticalAlignment = Alignment.Bottom
         ) {
-            // Message input field with icons inside
+            val inputEndPadding by animateDpAsState(
+                targetValue = if (value.isNotEmpty()) dimensions.wdsSpacingHalf else 0.dp,
+                animationSpec = tween(durationMillis = 200),
+                label = "inputEndPadding"
+            )
+
             Surface(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = dimensions.wdsSpacingHalf),
-                shape = shapes.triple, // 24dp border radius
+                    .padding(end = inputEndPadding),
+                shape = shapes.triple,
                 color = colors.colorBubbleSurfaceIncoming,
                 shadowElevation = dimensions.wdsElevationSubtle
             ) {
@@ -187,7 +204,12 @@ fun ChatComposer(
                     Box(
                         modifier = Modifier
                             .size(dimensions.wdsTouchTargetComfortable)
-                            .align(Alignment.Bottom),
+                            .align(Alignment.Bottom)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(bounded = false, radius = 20.dp),
+                                onClick = onStickerClick
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         // Expression/emoji icon with custom SVG path
@@ -395,9 +417,15 @@ fun ChatComposer(
                                 }.build()
                             )
 
-                            IconButton(
-                                onClick = onAttachClick,
-                                modifier = Modifier.size(dimensions.wdsTouchTargetStandard)
+                            Box(
+                                modifier = Modifier
+                                    .size(dimensions.wdsTouchTargetStandard)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = ripple(bounded = false, radius = 20.dp),
+                                        onClick = onAttachClick
+                                    ),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     painter = attachmentIcon,
@@ -409,9 +437,15 @@ fun ChatComposer(
 
                             // Camera icon - only show when empty
                             if (value.isEmpty()) {
-                                IconButton(
-                                    onClick = onCameraClick,
-                                    modifier = Modifier.size(dimensions.wdsTouchTargetStandard)
+                                Box(
+                                    modifier = Modifier
+                                        .size(dimensions.wdsTouchTargetStandard)
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = ripple(bounded = false, radius = 20.dp),
+                                            onClick = onCameraClick
+                                        ),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.PhotoCamera,
@@ -426,27 +460,27 @@ fun ChatComposer(
                 }
             }
 
-            // Mic/Send button
-            FloatingActionButton(
-                onClick = if (value.isNotEmpty()) onSendClick else onMicClick,
-                modifier = Modifier.size(dimensions.wdsTouchTargetComfortable),
-                containerColor = colors.colorAccent,
-                shape = CircleShape,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = dimensions.wdsElevationSubtle
-                )
+            AnimatedVisibility(
+                visible = value.isNotEmpty(),
+                enter = expandHorizontally(animationSpec = tween(200)) + scaleIn(animationSpec = tween(200)) + fadeIn(animationSpec = tween(200)),
+                exit = shrinkHorizontally(animationSpec = tween(200)) + scaleOut(animationSpec = tween(200)) + fadeOut(animationSpec = tween(200))
             ) {
-                if (value.isNotEmpty()) {
-                    Icon(
-                        Icons.AutoMirrored.Default.Send,
-                        contentDescription = "Send",
-                        tint = colors.colorContentOnAccent,
-                        modifier = Modifier.size(dimensions.wdsIconSizeMedium)
+                FloatingActionButton(
+                    onClick = onSendClick,
+                    modifier = Modifier.size(dimensions.wdsTouchTargetComfortable),
+                    containerColor = colors.colorAccent,
+                    shape = CircleShape,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp,
+                        focusedElevation = 0.dp,
+                        hoveredElevation = 0.dp
                     )
-                } else {
+                ) {
                     Icon(
-                        Icons.Default.Mic,
-                        contentDescription = "Voice",
+                        if (isBroadcast) Icons.AutoMirrored.Filled.ArrowForward
+                        else Icons.AutoMirrored.Default.Send,
+                        contentDescription = if (isBroadcast) "Next" else "Send",
                         tint = colors.colorContentOnAccent,
                         modifier = Modifier.size(dimensions.wdsIconSizeMedium)
                     )
@@ -464,12 +498,15 @@ fun MessageItem(
     senderName: String,
     senderAvatar: String?,
     showSenderInfo: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showTimestamp: Boolean = true,
+    actionContent: (@Composable () -> Unit)? = null
 ) {
     // Cache theme lookups for performance
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val shapes = WdsTheme.shapes
+    val timestampEndPadding = with(LocalDensity.current) { 10.toDp() }
 
     Row(
         modifier = modifier
@@ -513,18 +550,19 @@ fun MessageItem(
         if (!isFromCurrentUser && isGroupChat && !showSenderInfo) {
             Spacer(modifier = Modifier.width(WdsTheme.dimensions.wdsSpacingQuint)) // 28dp avatar + 8dp spacing = ~36dp, closest is 40dp
         }
-            
+
+            Column(modifier = Modifier.widthIn(max = 260.dp)) {
             // Message bubble
             Box(
                 modifier = Modifier
-                    .widthIn(max = 260.dp)
+                    .fillMaxWidth()
                     .shadow(
                         elevation = dimensions.wdsElevationSubtle,
                         spotColor = colors.colorBubbleSurfaceOverlay,
                         ambientColor = colors.colorBubbleSurfaceOverlay,
-                        shape = shapes.singlePlus
+                        shape = if (actionContent != null) shapes.singlePlusTop else shapes.singlePlus
                     )
-                    .clip(shapes.singlePlus)
+                    .clip(if (actionContent != null) shapes.singlePlusTop else shapes.singlePlus)
                     .background(
                         if (isFromCurrentUser) {
                             colors.colorBubbleSurfaceOutgoing
@@ -538,7 +576,8 @@ fun MessageItem(
                     MessageType.TEXT -> {
                         Column(
                             modifier = Modifier
-                                .padding(horizontal = WdsTheme.dimensions.wdsSpacingSingle, vertical = WdsTheme.dimensions.wdsSpacingHalfPlus)
+                                .fillMaxWidth()
+                                .padding(vertical = WdsTheme.dimensions.wdsSpacingHalfPlus)
                         ) {
                             // Show sender name inside bubble for group chats
                             if (!isFromCurrentUser && isGroupChat && showSenderInfo) {
@@ -546,25 +585,28 @@ fun MessageItem(
                                     text = senderName,
                                     style = WdsTheme.typography.body3Emphasized,
                                     color = getParticipantColor(senderName),
-                                    modifier = Modifier.padding(bottom = WdsTheme.dimensions.wdsSpacingQuarter)
+                                    modifier = Modifier.padding(
+                                        start = WdsTheme.dimensions.wdsSpacingSingle,
+                                        end = WdsTheme.dimensions.wdsSpacingSingle,
+                                        bottom = WdsTheme.dimensions.wdsSpacingQuarter
+                                    )
                                 )
                             }
                             
                             // Message content with timestamp
-                            if (message.content.length < 20) {
-                                // Short messages - inline timestamp
-                                Row(
-                                    modifier = Modifier.widthIn(max = 260.dp),
-                                    verticalAlignment = Alignment.Bottom,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    Text(
-                                        text = message.content,
-                                        style = WdsTheme.typography.chatBody1,
-                                        color = colors.colorContentDefault
-                                    )
-                                    Spacer(modifier = Modifier.width(dimensions.wdsSpacingSingle))
+                            if (!showTimestamp || message.content.length >= 20) {
+                                Text(
+                                    text = message.content,
+                                    style = WdsTheme.typography.chatBody1,
+                                    color = colors.colorContentDefault,
+                                    modifier = Modifier.padding(horizontal = WdsTheme.dimensions.wdsSpacingSingle)
+                                )
+                                if (showTimestamp) {
                                     Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = WdsTheme.dimensions.wdsSpacingQuarter, end = timestampEndPadding),
+                                        horizontalArrangement = Arrangement.End,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
@@ -579,26 +621,34 @@ fun MessageItem(
                                     }
                                 }
                             } else {
-                                // Longer messages - timestamp below
-                                Text(
-                                    text = message.content,
-                                    style = WdsTheme.typography.chatBody1,
-                                    color = colors.colorContentDefault
-                                )
+                                // Short messages - inline timestamp
                                 Row(
                                     modifier = Modifier
-                                        .align(Alignment.End)
-                                        .padding(top = WdsTheme.dimensions.wdsSpacingQuarter),
-                                    verticalAlignment = Alignment.CenterVertically
+                                        .fillMaxWidth()
+                                        .padding(
+                                            start = WdsTheme.dimensions.wdsSpacingSingle,
+                                            end = timestampEndPadding
+                                        ),
+                                    verticalAlignment = Alignment.Bottom,
                                 ) {
                                     Text(
-                                        text = formatTime(message.timestamp),
-                                        style = WdsTheme.typography.chatBody3,
-                                        color = colors.colorBubbleContentDeemphasized
+                                        text = message.content,
+                                        style = WdsTheme.typography.chatBody1,
+                                        color = colors.colorContentDefault
                                     )
-                                    if (isFromCurrentUser) {
-                                        Spacer(modifier = Modifier.width(3.dp))
-                                        MessageStatusIcon(message.derivedStatus)
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = formatTime(message.timestamp),
+                                            style = WdsTheme.typography.chatBody3,
+                                            color = colors.colorBubbleContentDeemphasized
+                                        )
+                                        if (isFromCurrentUser) {
+                                            Spacer(modifier = Modifier.width(3.dp))
+                                            MessageStatusIcon(message.derivedStatus)
+                                        }
                                     }
                                 }
                             }
@@ -684,17 +734,21 @@ fun MessageItem(
                             // Short messages - inline timestamp
                             Row(
                                 modifier = Modifier
-                                    .widthIn(max = 260.dp)
-                                    .padding(horizontal = WdsTheme.dimensions.wdsSpacingSingle, vertical = WdsTheme.dimensions.wdsSpacingHalfPlus),
+                                    .fillMaxWidth()
+                                    .padding(
+                                        start = WdsTheme.dimensions.wdsSpacingSingle,
+                                        end = timestampEndPadding,
+                                        top = WdsTheme.dimensions.wdsSpacingHalfPlus,
+                                        bottom = WdsTheme.dimensions.wdsSpacingHalfPlus
+                                    ),
                                 verticalAlignment = Alignment.Bottom,
-                                horizontalArrangement = Arrangement.Start
                             ) {
                                 Text(
                                     text = message.content,
                                     style = WdsTheme.typography.chatBody1,
                                     color = colors.colorContentDefault
                                 )
-                                Spacer(modifier = Modifier.width(dimensions.wdsSpacingSingle))
+                                Spacer(modifier = Modifier.weight(1f))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -712,17 +766,21 @@ fun MessageItem(
                         } else {
                             // Longer messages - timestamp below
                             Column(
-                                modifier = Modifier.padding(horizontal = WdsTheme.dimensions.wdsSpacingSingle, vertical = WdsTheme.dimensions.wdsSpacingHalfPlus)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = WdsTheme.dimensions.wdsSpacingHalfPlus)
                             ) {
                                 Text(
                                     text = message.content,
                                     style = WdsTheme.typography.chatBody1,
-                                    color = colors.colorContentDefault
+                                    color = colors.colorContentDefault,
+                                    modifier = Modifier.padding(horizontal = WdsTheme.dimensions.wdsSpacingSingle)
                                 )
                                 Row(
                                     modifier = Modifier
-                                        .align(Alignment.End)
-                                        .padding(top = WdsTheme.dimensions.wdsSpacingQuarter),
+                                        .fillMaxWidth()
+                                        .padding(top = WdsTheme.dimensions.wdsSpacingQuarter, end = timestampEndPadding),
+                                    horizontalArrangement = Arrangement.End,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
@@ -739,6 +797,11 @@ fun MessageItem(
                         }
                     }
                 }
+            }
+
+            if (actionContent != null) {
+                actionContent()
+            }
             }
         }
     }

@@ -54,6 +54,7 @@ object BaseColors {
     val wdsCoolGray75 = Color(0xFFF1F2F4)
     val wdsCoolGray100 = Color(0xFFEAEDEE)
     val wdsCoolGray200 = Color(0xFFD4D6D8)
+    val wdsCoolGray250 = Color(0xFFD1D7DB)
     val wdsCoolGray300 = Color(0xFFB3B9BD)
     val wdsCoolGray400 = Color(0xFF8D9599)
     val wdsCoolGray500 = Color(0xFF6C757A)

@@ -27,6 +27,12 @@ import com.example.chatapp.data.local.entity.ConversationEntity
 import com.example.chatapp.features.main.MainViewModel
 import com.example.chatapp.features.chat.ChatScreen
 import com.example.chatapp.features.chatlist.ChatListScreen
+import com.example.chatapp.features.broadcast.BroadcastChatScreen
+import com.example.chatapp.features.broadcast.BroadcastDraftScreen
+import com.example.chatapp.features.broadcast.BroadcastReviewScreen
+import com.example.chatapp.features.broadcast.NewBusinessBroadcastScreen
+import com.example.chatapp.features.broadcast.SelectContactScreen
+import com.example.chatapp.features.newchat.NewChatScreen
 import com.example.chatapp.features.tools.ToolsScreen
 import com.example.chatapp.navigation.Screen
 import com.example.chatapp.ui.screens.DesignSystemLibraryScreen
@@ -53,11 +59,21 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "chat_list"
-                    ) {
-
-                    composable(
-                        route = "chat_list",
+                        startDestination = "chat_list",
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { it },
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = FastOutSlowInEasing
+                                )
+                            ) + fadeIn(
+                                animationSpec = tween(
+                                    durationMillis = 150,
+                                    delayMillis = 150
+                                )
+                            )
+                        },
                         exitTransition = {
                             slideOutHorizontally(
                                 targetOffsetX = { -it / 3 },
@@ -84,11 +100,31 @@ class MainActivity : ComponentActivity() {
                                     delayMillis = 150
                                 )
                             )
+                        },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { it },
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = FastOutSlowInEasing
+                                )
+                            ) + fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 150
+                                )
+                            )
                         }
+                    ) {
+
+                    composable(
+                        route = "chat_list"
                     ) {
                         ChatListScreen(
                             onChatClick = { conversationId ->
                                 navController.navigate("chat/$conversationId")
+                            },
+                            onNewChatClick = {
+                                navController.navigate(Screen.NewChat.route)
                             },
                             onDesignLibraryClick = {
                                 navController.navigate(Screen.DesignSystemLibrary.route)
@@ -101,6 +137,153 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     
+                    composable(
+                        route = Screen.NewChat.route
+                    ) {
+                        NewChatScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            onContactClick = { userId ->
+                                navController.popBackStack()
+                            },
+                            onNewBroadcastClick = {
+                                navController.navigate(Screen.NewBusinessBroadcast.route)
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Screen.NewBusinessBroadcast.route
+                    ) {
+                        NewBusinessBroadcastScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            onNewAudienceClick = {
+                                navController.navigate(Screen.SelectContact.route)
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = Screen.SelectContact.route
+                    ) {
+                        SelectContactScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            onNextClick = { title, recipientCount, linkedListCount ->
+                                val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
+                                navController.navigate(
+                                    "${Screen.BroadcastChat.route}/$encodedTitle/$recipientCount/$linkedListCount"
+                                )
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = "${Screen.BroadcastChat.route}/{title}/{recipientCount}/{linkedListCount}?sentMessage={sentMessage}",
+                        arguments = listOf(
+                            navArgument("title") { type = NavType.StringType },
+                            navArgument("recipientCount") { type = NavType.IntType },
+                            navArgument("linkedListCount") { type = NavType.IntType },
+                            navArgument("sentMessage") {
+                                type = NavType.StringType
+                                nullable = true
+                                defaultValue = null
+                            }
+                        )
+                    ) { backStackEntry ->
+                        val title = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("title") ?: "",
+                            "UTF-8"
+                        )
+                        val recipientCount = backStackEntry.arguments?.getInt("recipientCount") ?: 0
+                        val linkedListCount = backStackEntry.arguments?.getInt("linkedListCount") ?: 0
+                        val sentMessage = backStackEntry.arguments?.getString("sentMessage")?.let {
+                            java.net.URLDecoder.decode(it, "UTF-8")
+                        }
+                        BroadcastChatScreen(
+                            title = title,
+                            recipientCount = recipientCount,
+                            linkedListCount = linkedListCount,
+                            sentMessage = sentMessage,
+                            onBackClick = { navController.popBackStack() },
+                            onNextClick = { messageText ->
+                                val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
+                                val encodedMessage = java.net.URLEncoder.encode(messageText, "UTF-8")
+                                navController.navigate(
+                                    "${Screen.BroadcastDraft.route}/$encodedTitle/$encodedMessage/$recipientCount/$linkedListCount"
+                                )
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = "${Screen.BroadcastDraft.route}/{title}/{messageText}/{recipientCount}/{linkedListCount}",
+                        arguments = listOf(
+                            navArgument("title") { type = NavType.StringType },
+                            navArgument("messageText") { type = NavType.StringType },
+                            navArgument("recipientCount") { type = NavType.IntType },
+                            navArgument("linkedListCount") { type = NavType.IntType }
+                        )
+                    ) { backStackEntry ->
+                        val draftTitle = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("title") ?: "",
+                            "UTF-8"
+                        )
+                        val messageText = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("messageText") ?: "",
+                            "UTF-8"
+                        )
+                        val recipientCount = backStackEntry.arguments?.getInt("recipientCount") ?: 0
+                        val linkedListCount = backStackEntry.arguments?.getInt("linkedListCount") ?: 0
+                        BroadcastDraftScreen(
+                            title = draftTitle,
+                            messageText = messageText,
+                            onBackClick = { navController.popBackStack() },
+                            onNextClick = {
+                                val encodedTitle = java.net.URLEncoder.encode(draftTitle, "UTF-8")
+                                val encodedMessage = java.net.URLEncoder.encode(messageText, "UTF-8")
+                                navController.navigate(
+                                    "${Screen.BroadcastReview.route}/$encodedTitle/$encodedMessage/$recipientCount/$linkedListCount"
+                                )
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = "${Screen.BroadcastReview.route}/{title}/{messageText}/{recipientCount}/{linkedListCount}",
+                        arguments = listOf(
+                            navArgument("title") { type = NavType.StringType },
+                            navArgument("messageText") { type = NavType.StringType },
+                            navArgument("recipientCount") { type = NavType.IntType },
+                            navArgument("linkedListCount") { type = NavType.IntType }
+                        )
+                    ) { backStackEntry ->
+                        val title = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("title") ?: "",
+                            "UTF-8"
+                        )
+                        val messageText = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("messageText") ?: "",
+                            "UTF-8"
+                        )
+                        val recipientCount = backStackEntry.arguments?.getInt("recipientCount") ?: 0
+                        val linkedListCount = backStackEntry.arguments?.getInt("linkedListCount") ?: 0
+                        BroadcastReviewScreen(
+                            messageText = messageText,
+                            recipientCount = recipientCount,
+                            onBackClick = { navController.popBackStack() },
+                            onEditAudienceClick = { },
+                            onScheduleClick = { },
+                            onSendNowClick = {
+                                val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
+                                val encodedMessage = java.net.URLEncoder.encode(messageText, "UTF-8")
+                                navController.navigate(
+                                    "${Screen.BroadcastChat.route}/$encodedTitle/$recipientCount/$linkedListCount?sentMessage=$encodedMessage"
+                                ) {
+                                    popUpTo("chat_list") { inclusive = false }
+                                }
+                            }
+                        )
+                    }
+
                     // Tools Screen
                     composable(
                         route = Screen.Tools.route
@@ -122,63 +305,7 @@ class MainActivity : ComponentActivity() {
                         route = "chat/{conversationId}",
                         arguments = listOf(
                             navArgument("conversationId") { type = NavType.StringType }
-                        ),
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        exitTransition = {
-                            // When navigating from chat to chat_info
-                            slideOutHorizontally(
-                                targetOffsetX = { -it / 3 },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        },
-                        popEnterTransition = {
-                            // When coming back from chat_info to chat
-                            slideInHorizontally(
-                                initialOffsetX = { -it / 3 },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        }
+                        )
                     ) { backStackEntry ->
                         val conversationId = backStackEntry.arguments?.getString("conversationId") ?: ""
                         ChatScreen(
@@ -196,34 +323,7 @@ class MainActivity : ComponentActivity() {
                         route = "chat_info/{conversationId}",
                         arguments = listOf(
                             navArgument("conversationId") { type = NavType.StringType }
-                        ),
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        }
+                        )
                     ) { backStackEntry ->
                         val conversationId = backStackEntry.arguments?.getString("conversationId") ?: ""
                         com.example.chatapp.features.chatinfo.ChatInfoScreen(
@@ -239,61 +339,7 @@ class MainActivity : ComponentActivity() {
                     
                     // Design System Library Routes
                     composable(
-                        route = Screen.DesignSystemLibrary.route,
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        exitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { -it / 3 },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        },
-                        popEnterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { -it / 3 },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        }
+                        route = Screen.DesignSystemLibrary.route
                     ) {
                         DesignSystemLibraryScreen(
                             onNavigateBack = { navController.popBackStack() },
@@ -305,34 +351,7 @@ class MainActivity : ComponentActivity() {
                     }
                     
                     composable(
-                        route = Screen.Colors.route,
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        }
+                        route = Screen.Colors.route
                     ) {
                         ColorsScreen(
                             onNavigateBack = { navController.popBackStack() }
@@ -340,34 +359,7 @@ class MainActivity : ComponentActivity() {
                     }
                     
                     composable(
-                        route = Screen.Type.route,
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        }
+                        route = Screen.Type.route
                     ) {
                         TypeScreen(
                             onNavigateBack = { navController.popBackStack() }
@@ -375,34 +367,7 @@ class MainActivity : ComponentActivity() {
                     }
                     
                     composable(
-                        route = Screen.Components.route,
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        }
+                        route = Screen.Components.route
                     ) {
                         ComponentsScreen(
                             onNavigateBack = { navController.popBackStack() }
@@ -410,34 +375,7 @@ class MainActivity : ComponentActivity() {
                     }
                     
                     composable(
-                        route = Screen.Icons.route,
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
-                                )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
-                        }
+                        route = Screen.Icons.route
                     ) {
                         IconsScreen(
                             onNavigateBack = { navController.popBackStack() }
