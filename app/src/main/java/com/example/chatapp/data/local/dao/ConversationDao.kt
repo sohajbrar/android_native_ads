@@ -33,6 +33,9 @@ interface ConversationDao {
     
     @Query("SELECT * FROM conversations WHERE unreadCount > 0 ORDER BY lastMessageTimestamp DESC")
     fun getUnreadConversations(): Flow<List<ConversationEntity>>
+
+    @Query("SELECT * FROM conversations WHERE isBroadcast = 1 ORDER BY lastMessageTimestamp DESC")
+    fun getBroadcastConversations(): Flow<List<ConversationEntity>>
     
     @Query("""
         UPDATE conversations 

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class ConversationEntity(
     @PrimaryKey
     val conversationId: String,
-    val title: String? = null, // For group chats
+    val title: String? = null,
     val isGroup: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
@@ -17,7 +17,10 @@ data class ConversationEntity(
     val unreadCount: Int = 0,
     val isPinned: Boolean = false,
     val isMuted: Boolean = false,
-    val isBusinessChat: Boolean = false, // For business conversations (shows different security message)
-    val avatarUrl: String? = null, // For group chats
-    val lastViewedAt: Long = 0L // Timestamp when user last viewed this conversation
+    val isBusinessChat: Boolean = false,
+    val isBroadcast: Boolean = false,
+    val broadcastRecipientCount: Int = 0,
+    val broadcastLinkedListCount: Int = 0,
+    val avatarUrl: String? = null,
+    val lastViewedAt: Long = 0L
 )

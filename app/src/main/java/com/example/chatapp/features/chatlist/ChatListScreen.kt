@@ -70,6 +70,7 @@ val LocalPaddingValues = compositionLocalOf<PaddingValues?> { null }
 @Composable
 fun ChatListScreen(
     onChatClick: (String) -> Unit = {},
+    onBroadcastChatClick: (conversationId: String, title: String, recipientCount: Int, linkedListCount: Int) -> Unit = { _, _, _, _ -> },
     viewModel: ChatListViewModel = hiltViewModel(),
     onSearchClick: () -> Unit = {},
     onCameraClick: () -> Unit = {},
@@ -219,6 +220,7 @@ fun ChatListScreen(
                 uiState = uiState,
                 viewModel = viewModel,
                 onChatClick = onChatClick,
+                onBroadcastChatClick = onBroadcastChatClick,
                 scope = scope
             )
         }
@@ -239,6 +241,7 @@ private fun ChatListMainContent(
     uiState: ChatListUiState,
     viewModel: ChatListViewModel,
     onChatClick: (String) -> Unit,
+    onBroadcastChatClick: (conversationId: String, title: String, recipientCount: Int, linkedListCount: Int) -> Unit,
     scope: CoroutineScope
 ) {
     LazyColumn(
@@ -394,7 +397,16 @@ private fun ChatListMainContent(
                             isRead = conversation.isRead,
                             isMissedCall = conversation.isMissedCall,
                             onClick = {
-                                onChatClick(conversation.id)
+                                if (conversation.isBroadcast) {
+                                    onBroadcastChatClick(
+                                        conversation.id,
+                                        conversation.title,
+                                        conversation.broadcastRecipientCount,
+                                        conversation.broadcastLinkedListCount
+                                    )
+                                } else {
+                                    onChatClick(conversation.id)
+                                }
                                 onSearchActiveChange(false)
                                 onSearchQueryChange("")
                                 onSearchFilterSelected("")
@@ -439,8 +451,16 @@ private fun ChatListMainContent(
                     isRead = conversation.isRead,
                     isMissedCall = conversation.isMissedCall,
                     onClick = {
-                        println("ChatListScreen: Clicked on ${conversation.title} with ID: ${conversation.id}")
-                        onChatClick(conversation.id)
+                        if (conversation.isBroadcast) {
+                            onBroadcastChatClick(
+                                conversation.id,
+                                conversation.title,
+                                conversation.broadcastRecipientCount,
+                                conversation.broadcastLinkedListCount
+                            )
+                        } else {
+                            onChatClick(conversation.id)
+                        }
                     }
                 )
                 }
@@ -855,7 +875,7 @@ private fun EncryptionNotice() {
 data class ConversationUiModel(
     val id: String,
     val title: String,
-    val subtitle: String? = null, // For disambiguation when names match
+    val subtitle: String? = null,
     val avatarUrl: String?,
     val lastMessage: String,
     val lastMessageTime: Instant,
@@ -867,7 +887,10 @@ data class ConversationUiModel(
     val isRead: Boolean = false,
     val hasUnread: Boolean = false,
     val isMissedCall: Boolean = false,
-    val isPinned: Boolean = false
+    val isPinned: Boolean = false,
+    val isBroadcast: Boolean = false,
+    val broadcastRecipientCount: Int = 0,
+    val broadcastLinkedListCount: Int = 0
 )
 
 enum class ChatFilter {

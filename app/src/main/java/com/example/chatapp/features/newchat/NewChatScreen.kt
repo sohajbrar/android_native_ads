@@ -100,7 +100,7 @@ private fun NewChatContent(
 
     if (showComingSoon) {
         WdsDialog(
-            message = "This feature is coming soon.",
+            title = "This feature is coming soon.",
             positiveButton = WdsDialogButton(
                 text = "OK",
                 onClick = { showComingSoon = false }

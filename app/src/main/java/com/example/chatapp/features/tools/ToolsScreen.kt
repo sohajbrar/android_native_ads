@@ -64,7 +64,9 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.chatapp.R
 import com.example.chatapp.features.chatlist.ChatListBottomBar
 import com.example.chatapp.wds.components.WDSDivider
 import com.example.chatapp.wds.theme.WdsTheme
@@ -78,7 +80,8 @@ fun ToolsScreen(
     onUpdatesClick: () -> Unit = {},
     onToolsClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
-    onMoreClick: () -> Unit = {}
+    onMoreClick: () -> Unit = {},
+    onBroadcastClick: () -> Unit = {}
 ) {
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
@@ -206,6 +209,14 @@ fun ToolsScreen(
                     icon = Icons.Outlined.Group,
                     title = "Manage ads",
                     subtitle = "See all your ads in one place"
+                )
+            }
+            item {
+                SettingsRowWithRes(
+                    iconRes = R.drawable.ic_business_broadcast_outlined,
+                    title = "Business broadcasts",
+                    subtitle = "Message multiple contacts at once",
+                    onClick = onBroadcastClick
                 )
             }
             item {
@@ -779,6 +790,52 @@ private fun SettingsRow(
             contentDescription = null,
             modifier = Modifier.size(24.dp),
             tint = colors.colorContentDeemphasized  // Changed to deemphasized color
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(dimensions.wdsSpacingQuarter)
+        ) {
+            Text(
+                text = title,
+                style = typography.body1,
+                color = colors.colorContentDefault
+            )
+            Text(
+                text = subtitle,
+                style = typography.body2,
+                color = colors.colorContentDeemphasized
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsRowWithRes(
+    @androidx.annotation.DrawableRes iconRes: Int,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit = {}
+) {
+    val colors = WdsTheme.colors
+    val dimensions = WdsTheme.dimensions
+    val typography = WdsTheme.typography
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = dimensions.wdsSpacingTriple,
+                vertical = dimensions.wdsSpacingDouble
+            ),
+        horizontalArrangement = Arrangement.spacedBy(dimensions.wdsSpacingTriple),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
+            tint = colors.colorContentDeemphasized
         )
         Column(
             modifier = Modifier.weight(1f),

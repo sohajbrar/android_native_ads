@@ -58,8 +58,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import java.util.UUID
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.chatapp.R
@@ -68,6 +70,7 @@ import com.example.chatapp.features.newchat.NewChatViewModel
 import com.example.chatapp.wds.components.WDSFab
 import com.example.chatapp.wds.components.WDSFabStyle
 import com.example.chatapp.wds.components.WDSSectionDivider
+import com.example.chatapp.wds.components.WDSToast
 import com.example.chatapp.wds.components.WDSTopBar
 import com.example.chatapp.wds.theme.WdsTheme
 
@@ -83,9 +86,9 @@ data class ContactList(
 )
 
 @Composable
-fun SelectContactScreen(
+fun SelectRecipientsScreen(
     onNavigateBack: () -> Unit = {},
-    onNextClick: (title: String, recipientCount: Int, linkedListCount: Int) -> Unit = { _, _, _ -> },
+    onNextClick: (conversationId: String, title: String, recipientCount: Int, linkedListCount: Int) -> Unit = { _, _, _, _ -> },
     viewModel: NewChatViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -121,6 +124,7 @@ fun SelectContactScreen(
 
     var selectedListIds by remember { mutableStateOf(setOf<String>()) }
     var selectedContactIds by remember { mutableStateOf(setOf<String>()) }
+    var toastMessage by remember { mutableStateOf<String?>(null) }
 
     val selectedLists = lists.filter { it.id in selectedListIds }
     val selectedContacts = uiState.displayContacts.filter { it.userId in selectedContactIds }
@@ -131,7 +135,7 @@ fun SelectContactScreen(
     val showFab = selectedListIds.isNotEmpty() || selectedContactIds.size >= 2
     val hasSelections = selectedListIds.isNotEmpty() || selectedContactIds.isNotEmpty()
 
-    SelectContactContent(
+    SelectRecipientsContent(
         contacts = uiState.displayContacts,
         lists = lists,
         selectedListIds = selectedListIds,
@@ -142,18 +146,28 @@ fun SelectContactScreen(
         totalCount = totalCount,
         showFab = showFab,
         hasSelections = hasSelections,
+        toastMessage = toastMessage,
+        onDismissToast = { toastMessage = null },
         onToggleList = { listId ->
-            selectedListIds = if (listId in selectedListIds) {
-                selectedListIds - listId
+            if (selectedContactIds.isNotEmpty()) {
+                toastMessage = "To create an audience with lists, remove the individual contacts you\u2019ve selected."
             } else {
-                selectedListIds + listId
+                selectedListIds = if (listId in selectedListIds) {
+                    selectedListIds - listId
+                } else {
+                    selectedListIds + listId
+                }
             }
         },
         onToggleContact = { contactId ->
-            selectedContactIds = if (contactId in selectedContactIds) {
-                selectedContactIds - contactId
+            if (selectedListIds.isNotEmpty()) {
+                toastMessage = "To create an audience with individual contacts, remove the lists you\u2019ve selected."
             } else {
-                selectedContactIds + contactId
+                selectedContactIds = if (contactId in selectedContactIds) {
+                    selectedContactIds - contactId
+                } else {
+                    selectedContactIds + contactId
+                }
             }
         },
         onNavigateBack = onNavigateBack,
@@ -171,13 +185,22 @@ fun SelectContactScreen(
                     parts.joinToString(", ")
                 }
             }
-            onNextClick(title, selectedCount, selectedListIds.size)
+
+            val conversationId = "broadcast_${UUID.randomUUID()}"
+            viewModel.createBroadcastConversation(
+                conversationId = conversationId,
+                title = title,
+                selectedContactIds = selectedContactIds,
+                recipientCount = selectedCount,
+                linkedListCount = selectedListIds.size
+            )
+            onNextClick(conversationId, title, selectedCount, selectedListIds.size)
         }
     )
 }
 
 @Composable
-private fun SelectContactContent(
+private fun SelectRecipientsContent(
     contacts: List<UserEntity>,
     lists: List<ContactList>,
     selectedListIds: Set<String>,
@@ -188,6 +211,8 @@ private fun SelectContactContent(
     totalCount: Int,
     showFab: Boolean,
     hasSelections: Boolean,
+    toastMessage: String? = null,
+    onDismissToast: () -> Unit = {},
     onToggleList: (String) -> Unit,
     onToggleContact: (String) -> Unit,
     onNavigateBack: () -> Unit,
@@ -204,7 +229,7 @@ private fun SelectContactContent(
         containerColor = colors.colorSurfaceDefault,
         topBar = {
             WDSTopBar(
-                title = "Select contact",
+                title = "Select recipients",
                 subtitle = "$formattedSelected of $formattedTotal selected",
                 onNavigateBack = onNavigateBack,
                 actions = {
@@ -218,11 +243,82 @@ private fun SelectContactContent(
                 }
             )
         },
-        floatingActionButton = {
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Selected items row pinned above the scrollable list
+                AnimatedVisibility(visible = hasSelections) {
+                    Column {
+                        SelectedItemsRow(
+                            selectedLists = selectedLists,
+                            selectedContacts = selectedContacts,
+                            allContacts = contacts,
+                            onRemoveList = { onToggleList(it) },
+                            onRemoveContact = { onToggleContact(it) }
+                        )
+                        HorizontalDivider(color = colors.colorDivider)
+                    }
+                }
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    // Your lists header
+                    item(key = "lists_header") {
+                        WDSSectionDivider(
+                            title = "Your lists",
+                            actionText = "See all",
+                            onActionClick = { }
+                        )
+                    }
+
+                    // List items
+                    items(
+                        items = lists,
+                        key = { "list_${it.id}" }
+                    ) { list ->
+                        SelectableListRow(
+                            list = list,
+                            isSelected = list.id in selectedListIds,
+                            onToggle = { onToggleList(list.id) }
+                        )
+                    }
+
+                    // Contacts on WhatsApp header
+                    item(key = "contacts_header") {
+                        WDSSectionDivider(title = "Contacts on WhatsApp")
+                    }
+
+                    // Contact items
+                    items(
+                        items = contacts,
+                        key = { "contact_${it.userId}" }
+                    ) { user ->
+                        val isInSelectedList = selectedListIds.isNotEmpty()
+                        val isIndividuallySelected = user.userId in selectedContactIds
+                        SelectableContactRow(
+                            user = user,
+                            isSelected = isIndividuallySelected || isInSelectedList,
+                            isSelectedViaList = isInSelectedList && !isIndividuallySelected,
+                            onToggle = { onToggleContact(user.userId) }
+                        )
+                    }
+                }
+            }
+
             AnimatedVisibility(
                 visible = showFab,
                 enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
+                exit = scaleOut() + fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(dimensions.wdsSpacingDouble)
             ) {
                 WDSFab(
                     onClick = onNextClick,
@@ -231,70 +327,24 @@ private fun SelectContactContent(
                     contentDescription = "Next"
                 )
             }
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Selected items row pinned above the scrollable list
-            AnimatedVisibility(visible = hasSelections) {
-                Column {
-                    SelectedItemsRow(
-                        selectedLists = selectedLists,
-                        selectedContacts = selectedContacts,
-                        allContacts = contacts,
-                        onRemoveList = { onToggleList(it) },
-                        onRemoveContact = { onToggleContact(it) }
-                    )
-                    HorizontalDivider(color = colors.colorDivider)
-                }
-            }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(
+                        start = dimensions.wdsSpacingDouble,
+                        end = dimensions.wdsSpacingDouble,
+                        bottom = dimensions.wdsSpacingDouble
+                    )
+                    .zIndex(1f),
+                contentAlignment = Alignment.BottomCenter
             ) {
-                // Your lists header
-                item(key = "lists_header") {
-                    WDSSectionDivider(
-                        title = "Your lists",
-                        actionText = "See all",
-                        onActionClick = { }
-                    )
-                }
-
-                // List items
-                items(
-                    items = lists,
-                    key = { "list_${it.id}" }
-                ) { list ->
-                    SelectableListRow(
-                        list = list,
-                        isSelected = list.id in selectedListIds,
-                        onToggle = { onToggleList(list.id) }
-                    )
-                }
-
-                // Contacts on WhatsApp header
-                item(key = "contacts_header") {
-                    WDSSectionDivider(title = "Contacts on WhatsApp")
-                }
-
-            // Contact items
-            items(
-                items = contacts,
-                key = { "contact_${it.userId}" }
-            ) { user ->
-                val isInSelectedList = selectedListIds.isNotEmpty()
-                val isIndividuallySelected = user.userId in selectedContactIds
-                SelectableContactRow(
-                    user = user,
-                    isSelected = isIndividuallySelected || isInSelectedList,
-                    isSelectedViaList = isInSelectedList && !isIndividuallySelected,
-                    onToggle = { onToggleContact(user.userId) }
+                WDSToast(
+                    message = toastMessage ?: "",
+                    isVisible = toastMessage != null,
+                    onDismiss = onDismissToast
                 )
-            }
             }
         }
     }
@@ -826,9 +876,9 @@ private fun resolveDrawableAvatar(name: String): Int? {
 
 // --- Previews ---
 
-@Preview(showBackground = true, name = "Select Contact - No Selection")
+@Preview(showBackground = true, name = "Select Recipients - No Selection")
 @Composable
-private fun SelectContactPreviewNoSelection() {
+private fun SelectRecipientsPreviewNoSelection() {
     WdsTheme(darkTheme = false) {
         val sampleContacts = listOf(
             UserEntity(userId = "u1", username = "alice", displayName = "Alice", avatarUrl = "drawable://avatar_alice", statusMessage = "Available"),
@@ -840,7 +890,7 @@ private fun SelectContactPreviewNoSelection() {
 
         val lists = sampleLists()
 
-        SelectContactContent(
+        SelectRecipientsContent(
             contacts = sampleContacts,
             lists = lists,
             selectedListIds = emptySet(),
@@ -859,9 +909,9 @@ private fun SelectContactPreviewNoSelection() {
     }
 }
 
-@Preview(showBackground = true, name = "Select Contact - With Selections")
+@Preview(showBackground = true, name = "Select Recipients - With Selections")
 @Composable
-private fun SelectContactPreviewWithSelections() {
+private fun SelectRecipientsPreviewWithSelections() {
     WdsTheme(darkTheme = false) {
         val sampleContacts = listOf(
             UserEntity(userId = "u1", username = "alice", displayName = "Alice", avatarUrl = "drawable://avatar_alice", statusMessage = "Available"),
@@ -875,7 +925,7 @@ private fun SelectContactPreviewWithSelections() {
         val selectedListIds = setOf("new_order")
         val selectedContactIds = emptySet<String>()
 
-        SelectContactContent(
+        SelectRecipientsContent(
             contacts = sampleContacts,
             lists = lists,
             selectedListIds = selectedListIds,
@@ -894,9 +944,9 @@ private fun SelectContactPreviewWithSelections() {
     }
 }
 
-@Preview(showBackground = true, name = "Select Contact - Dark")
+@Preview(showBackground = true, name = "Select Recipients - Dark")
 @Composable
-private fun SelectContactPreviewDark() {
+private fun SelectRecipientsPreviewDark() {
     WdsTheme(darkTheme = true) {
         val sampleContacts = listOf(
             UserEntity(userId = "u1", username = "alice", displayName = "Alice", avatarUrl = "drawable://avatar_alice", statusMessage = "Available"),
@@ -906,7 +956,7 @@ private fun SelectContactPreviewDark() {
 
         val lists = sampleLists()
 
-        SelectContactContent(
+        SelectRecipientsContent(
             contacts = sampleContacts,
             lists = lists,
             selectedListIds = emptySet(),

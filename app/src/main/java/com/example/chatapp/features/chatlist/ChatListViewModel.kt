@@ -110,25 +110,21 @@ class ChatListViewModel @Inject constructor(
                                         conversation.title
                                     }
                                     
-                                    // Generate appropriate avatar URL based on conversation type
-                                    val avatarUrl = if (conversation.isGroup) {
-                                        // For groups, use the group's avatar URL or generate one based on group name
-                                        // Extract conversation index from ID for consistent avatar selection
+                                    val avatarUrl = if (conversation.isBroadcast) {
+                                        "broadcast://"
+                                    } else if (conversation.isGroup) {
                                         val convIndex = conversation.conversationId.removePrefix("conv_").toIntOrNull() ?: 0
                                         conversation.avatarUrl ?: ChatDataGenerator.generateGroupAvatarUrl(displayTitle, convIndex)
                                     } else {
-                                        // For direct messages, try to get the other participant's avatar
                                         val participants = conversationParticipants[conversation.conversationId] ?: emptyList()
                                         val otherParticipant = participants.firstOrNull { it.userId != currentUserId }
                                         
                                         if (otherParticipant != null) {
-                                            // Get the user's avatar from the user map
                                             userMap[otherParticipant.userId]?.avatarUrl ?: ChatDataGenerator.generateIndividualAvatarUrl(
                                                 conversation.conversationId,
                                                 conversation.conversationId
                                             )
                                         } else {
-                                            // Fallback to generated avatar
                                             ChatDataGenerator.generateIndividualAvatarUrl(
                                                 conversation.conversationId,
                                                 conversation.conversationId
@@ -158,15 +154,18 @@ class ChatListViewModel @Inject constructor(
                                         avatarUrl = avatarUrl,
                                         lastMessage = conversation.lastMessageText ?: "Start a conversation",
                                         lastMessageTime = Instant.fromEpochMilliseconds(conversation.lastMessageTimestamp ?: System.currentTimeMillis()),
-                                        lastMessageSender = null, // Would need to fetch from participants
+                                        lastMessageSender = null,
                                         lastMessageType = lastMessageType,
                                         unreadCount = conversation.unreadCount,
                                         isGroup = conversation.isGroup,
-                                        isSentByUser = false, // Would need to check against current user
+                                        isSentByUser = false,
                                         isRead = conversation.unreadCount == 0,
                                         hasUnread = conversation.unreadCount > 0,
                                         isMissedCall = conversation.lastMessageText?.contains("Missed Call") == true,
-                                        isPinned = conversation.isPinned
+                                        isPinned = conversation.isPinned,
+                                        isBroadcast = conversation.isBroadcast,
+                                        broadcastRecipientCount = conversation.broadcastRecipientCount,
+                                        broadcastLinkedListCount = conversation.broadcastLinkedListCount
                                     )
                                 } else null
                             } catch (e: Exception) {

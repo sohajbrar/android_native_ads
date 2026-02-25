@@ -10,9 +10,11 @@ sealed class Screen(val route: String) {
     // Feature screens
     data object NewChat : Screen("new_chat")
     data object NewBusinessBroadcast : Screen("new_business_broadcast")
-    data object SelectContact : Screen("select_contact")
+    data object SelectRecipients : Screen("select_recipients")
     
+    data object BroadcastHome : Screen("broadcast_home")
     data object BroadcastChat : Screen("broadcast_chat")
+    data object BroadcastInfo : Screen("broadcast_info")
     data object BroadcastDraft : Screen("broadcast_draft")
     data object BroadcastReview : Screen("broadcast_review")
 

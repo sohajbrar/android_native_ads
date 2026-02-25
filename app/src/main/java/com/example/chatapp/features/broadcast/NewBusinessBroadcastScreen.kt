@@ -138,7 +138,7 @@ private fun NewBusinessBroadcastContent(
 
     if (showComingSoonDialog) {
         WdsDialog(
-            message = "This feature is coming soon.",
+            title = "This feature is coming soon.",
             positiveButton = WdsDialogButton(
                 text = "OK",
                 onClick = { showComingSoonDialog = false }

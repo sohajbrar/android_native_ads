@@ -46,6 +46,7 @@ class ChatRepository @Inject constructor(
     fun getAllConversations() = conversationDao.getAllConversations()
     fun getPinnedConversations() = conversationDao.getPinnedConversations()
     fun getUnreadConversations() = conversationDao.getUnreadConversations()
+    fun getBroadcastConversations() = conversationDao.getBroadcastConversations()
     suspend fun updateLastMessage(
         conversationId: String,
         messageId: String,
@@ -62,6 +63,10 @@ class ChatRepository @Inject constructor(
         conversationDao.getConversationByIdFlow(conversationId)
     suspend fun updateConversation(conversation: ConversationEntity) =
         conversationDao.updateConversation(conversation)
+    suspend fun deleteConversation(conversationId: String) {
+        val conversation = conversationDao.getConversationById(conversationId)
+        conversation?.let { conversationDao.deleteConversation(it) }
+    }
     
     // Participant operations
     suspend fun insertParticipant(participant: ConversationParticipantEntity) =
@@ -106,6 +111,8 @@ class ChatRepository @Inject constructor(
     fun getRepliesForMessage(messageId: String) = messageDao.getRepliesForMessage(messageId)
     fun getMessagesForConversation(conversationId: String): Flow<List<MessageEntity>> =
         messageDao.getConversationMessages(conversationId)
+    fun getBroadcastMessages(): Flow<List<MessageEntity>> =
+        messageDao.getBroadcastMessages()
     
     // Clear data operations
     suspend fun clearAllData() {

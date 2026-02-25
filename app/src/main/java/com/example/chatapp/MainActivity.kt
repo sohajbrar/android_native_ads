@@ -29,9 +29,11 @@ import com.example.chatapp.features.chat.ChatScreen
 import com.example.chatapp.features.chatlist.ChatListScreen
 import com.example.chatapp.features.broadcast.BroadcastChatScreen
 import com.example.chatapp.features.broadcast.BroadcastDraftScreen
+import com.example.chatapp.features.broadcast.BroadcastHomeScreen
+import com.example.chatapp.features.broadcast.BroadcastInfoScreen
 import com.example.chatapp.features.broadcast.BroadcastReviewScreen
 import com.example.chatapp.features.broadcast.NewBusinessBroadcastScreen
-import com.example.chatapp.features.broadcast.SelectContactScreen
+import com.example.chatapp.features.broadcast.SelectRecipientsScreen
 import com.example.chatapp.features.newchat.NewChatScreen
 import com.example.chatapp.features.tools.ToolsScreen
 import com.example.chatapp.navigation.Screen
@@ -123,6 +125,13 @@ class MainActivity : ComponentActivity() {
                             onChatClick = { conversationId ->
                                 navController.navigate("chat/$conversationId")
                             },
+                            onBroadcastChatClick = { conversationId, title, recipientCount, linkedListCount ->
+                                val encodedConversationId = java.net.URLEncoder.encode(conversationId, "UTF-8")
+                                val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
+                                navController.navigate(
+                                    "${Screen.BroadcastChat.route}/$encodedConversationId/$encodedTitle/$recipientCount/$linkedListCount"
+                                )
+                            },
                             onNewChatClick = {
                                 navController.navigate(Screen.NewChat.route)
                             },
@@ -131,7 +140,11 @@ class MainActivity : ComponentActivity() {
                             },
                             onToolsClick = {
                                 navController.navigate(Screen.Tools.route) {
-                                    popUpTo("chat_list") { inclusive = true }
+                                    popUpTo("chat_list") {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
                             }
                         )
@@ -157,28 +170,32 @@ class MainActivity : ComponentActivity() {
                         NewBusinessBroadcastScreen(
                             onNavigateBack = { navController.popBackStack() },
                             onNewAudienceClick = {
-                                navController.navigate(Screen.SelectContact.route)
+                                navController.navigate(Screen.SelectRecipients.route)
                             }
                         )
                     }
 
                     composable(
-                        route = Screen.SelectContact.route
+                        route = Screen.SelectRecipients.route
                     ) {
-                        SelectContactScreen(
+                        SelectRecipientsScreen(
                             onNavigateBack = { navController.popBackStack() },
-                            onNextClick = { title, recipientCount, linkedListCount ->
+                            onNextClick = { conversationId, title, recipientCount, linkedListCount ->
                                 val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
+                                val encodedConversationId = java.net.URLEncoder.encode(conversationId, "UTF-8")
                                 navController.navigate(
-                                    "${Screen.BroadcastChat.route}/$encodedTitle/$recipientCount/$linkedListCount"
-                                )
+                                    "${Screen.BroadcastChat.route}/$encodedConversationId/$encodedTitle/$recipientCount/$linkedListCount"
+                                ) {
+                                    popUpTo("chat_list") { inclusive = false }
+                                }
                             }
                         )
                     }
 
                     composable(
-                        route = "${Screen.BroadcastChat.route}/{title}/{recipientCount}/{linkedListCount}?sentMessage={sentMessage}",
+                        route = "${Screen.BroadcastChat.route}/{conversationId}/{title}/{recipientCount}/{linkedListCount}?sentMessage={sentMessage}",
                         arguments = listOf(
+                            navArgument("conversationId") { type = NavType.StringType },
                             navArgument("title") { type = NavType.StringType },
                             navArgument("recipientCount") { type = NavType.IntType },
                             navArgument("linkedListCount") { type = NavType.IntType },
@@ -189,40 +206,94 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     ) { backStackEntry ->
+                        val conversationId = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("conversationId") ?: "",
+                            "UTF-8"
+                        )
                         val title = java.net.URLDecoder.decode(
                             backStackEntry.arguments?.getString("title") ?: "",
                             "UTF-8"
                         )
                         val recipientCount = backStackEntry.arguments?.getInt("recipientCount") ?: 0
                         val linkedListCount = backStackEntry.arguments?.getInt("linkedListCount") ?: 0
-                        val sentMessage = backStackEntry.arguments?.getString("sentMessage")?.let {
-                            java.net.URLDecoder.decode(it, "UTF-8")
-                        }
+
+                        val newSentMessage by backStackEntry.savedStateHandle
+                            .getStateFlow<String?>("newSentMessage", null)
+                            .collectAsState()
+
                         BroadcastChatScreen(
+                            conversationId = conversationId,
                             title = title,
                             recipientCount = recipientCount,
                             linkedListCount = linkedListCount,
-                            sentMessage = sentMessage,
+                            sentMessage = newSentMessage,
                             onBackClick = { navController.popBackStack() },
+                            onHeaderClick = {
+                                val encodedConversationId = java.net.URLEncoder.encode(conversationId, "UTF-8")
+                                val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
+                                navController.navigate(
+                                    "${Screen.BroadcastInfo.route}/$encodedConversationId/$encodedTitle/$recipientCount/$linkedListCount"
+                                )
+                            },
                             onNextClick = { messageText ->
                                 val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
+                                val encodedConversationId = java.net.URLEncoder.encode(conversationId, "UTF-8")
                                 val encodedMessage = java.net.URLEncoder.encode(messageText, "UTF-8")
                                 navController.navigate(
-                                    "${Screen.BroadcastDraft.route}/$encodedTitle/$encodedMessage/$recipientCount/$linkedListCount"
+                                    "${Screen.BroadcastDraft.route}/$encodedConversationId/$encodedTitle/$encodedMessage/$recipientCount/$linkedListCount"
                                 )
+                            },
+                            onMessageProcessed = {
+                                backStackEntry.savedStateHandle.remove<String>("newSentMessage")
                             }
                         )
                     }
 
                     composable(
-                        route = "${Screen.BroadcastDraft.route}/{title}/{messageText}/{recipientCount}/{linkedListCount}",
+                        route = "${Screen.BroadcastInfo.route}/{conversationId}/{title}/{recipientCount}/{linkedListCount}",
                         arguments = listOf(
+                            navArgument("conversationId") { type = NavType.StringType },
+                            navArgument("title") { type = NavType.StringType },
+                            navArgument("recipientCount") { type = NavType.IntType },
+                            navArgument("linkedListCount") { type = NavType.IntType }
+                        )
+                    ) { backStackEntry ->
+                        val infoConversationId = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("conversationId") ?: "",
+                            "UTF-8"
+                        )
+                        val infoTitle = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("title") ?: "",
+                            "UTF-8"
+                        )
+                        val infoRecipientCount = backStackEntry.arguments?.getInt("recipientCount") ?: 0
+                        val infoLinkedListCount = backStackEntry.arguments?.getInt("linkedListCount") ?: 0
+                        BroadcastInfoScreen(
+                            conversationId = infoConversationId,
+                            title = infoTitle,
+                            recipientCount = infoRecipientCount,
+                            linkedListCount = infoLinkedListCount,
+                            onBackClick = { navController.popBackStack() },
+                            onDeleteBroadcast = {
+                                navController.popBackStack("chat_list", inclusive = false)
+                            }
+                        )
+                    }
+
+                    composable(
+                        route = "${Screen.BroadcastDraft.route}/{conversationId}/{title}/{messageText}/{recipientCount}/{linkedListCount}",
+                        arguments = listOf(
+                            navArgument("conversationId") { type = NavType.StringType },
                             navArgument("title") { type = NavType.StringType },
                             navArgument("messageText") { type = NavType.StringType },
                             navArgument("recipientCount") { type = NavType.IntType },
                             navArgument("linkedListCount") { type = NavType.IntType }
                         )
                     ) { backStackEntry ->
+                        val conversationId = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("conversationId") ?: "",
+                            "UTF-8"
+                        )
                         val draftTitle = java.net.URLDecoder.decode(
                             backStackEntry.arguments?.getString("title") ?: "",
                             "UTF-8"
@@ -238,24 +309,30 @@ class MainActivity : ComponentActivity() {
                             messageText = messageText,
                             onBackClick = { navController.popBackStack() },
                             onNextClick = {
+                                val encodedConversationId = java.net.URLEncoder.encode(conversationId, "UTF-8")
                                 val encodedTitle = java.net.URLEncoder.encode(draftTitle, "UTF-8")
                                 val encodedMessage = java.net.URLEncoder.encode(messageText, "UTF-8")
                                 navController.navigate(
-                                    "${Screen.BroadcastReview.route}/$encodedTitle/$encodedMessage/$recipientCount/$linkedListCount"
+                                    "${Screen.BroadcastReview.route}/$encodedConversationId/$encodedTitle/$encodedMessage/$recipientCount/$linkedListCount"
                                 )
                             }
                         )
                     }
 
                     composable(
-                        route = "${Screen.BroadcastReview.route}/{title}/{messageText}/{recipientCount}/{linkedListCount}",
+                        route = "${Screen.BroadcastReview.route}/{conversationId}/{title}/{messageText}/{recipientCount}/{linkedListCount}",
                         arguments = listOf(
+                            navArgument("conversationId") { type = NavType.StringType },
                             navArgument("title") { type = NavType.StringType },
                             navArgument("messageText") { type = NavType.StringType },
                             navArgument("recipientCount") { type = NavType.IntType },
                             navArgument("linkedListCount") { type = NavType.IntType }
                         )
                     ) { backStackEntry ->
+                        val conversationId = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("conversationId") ?: "",
+                            "UTF-8"
+                        )
                         val title = java.net.URLDecoder.decode(
                             backStackEntry.arguments?.getString("title") ?: "",
                             "UTF-8"
@@ -273,13 +350,12 @@ class MainActivity : ComponentActivity() {
                             onEditAudienceClick = { },
                             onScheduleClick = { },
                             onSendNowClick = {
-                                val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
-                                val encodedMessage = java.net.URLEncoder.encode(messageText, "UTF-8")
-                                navController.navigate(
-                                    "${Screen.BroadcastChat.route}/$encodedTitle/$recipientCount/$linkedListCount?sentMessage=$encodedMessage"
-                                ) {
-                                    popUpTo("chat_list") { inclusive = false }
-                                }
+                                val chatRoute = "${Screen.BroadcastChat.route}/{conversationId}/{title}/{recipientCount}/{linkedListCount}?sentMessage={sentMessage}"
+                                try {
+                                    navController.getBackStackEntry(chatRoute)
+                                        .savedStateHandle["newSentMessage"] = messageText
+                                } catch (_: Exception) { }
+                                navController.popBackStack(chatRoute, inclusive = false)
                             }
                         )
                     }
@@ -292,15 +368,33 @@ class MainActivity : ComponentActivity() {
                             selectedTab = 3,
                             onChatsClick = {
                                 navController.navigate("chat_list") {
-                                    popUpTo(Screen.Tools.route) { inclusive = true }
+                                    popUpTo("chat_list") {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
                             },
                             onCallsClick = { /* Calls not implemented yet */ },
                             onUpdatesClick = { /* Updates not implemented yet */ },
-                            onToolsClick = { /* Already on Tools */ }
+                            onToolsClick = { /* Already on Tools */ },
+                            onBroadcastClick = {
+                                navController.navigate(Screen.BroadcastHome.route)
+                            }
                         )
                     }
                     
+                    composable(
+                        route = Screen.BroadcastHome.route
+                    ) {
+                        BroadcastHomeScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            onNewBroadcastClick = {
+                                navController.navigate(Screen.NewBusinessBroadcast.route)
+                            }
+                        )
+                    }
+
                     composable(
                         route = "chat/{conversationId}",
                         arguments = listOf(

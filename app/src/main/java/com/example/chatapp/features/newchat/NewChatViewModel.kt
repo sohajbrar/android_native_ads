@@ -2,6 +2,9 @@ package com.example.chatapp.features.newchat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatapp.data.local.entity.ConversationEntity
+import com.example.chatapp.data.local.entity.ConversationParticipantEntity
+import com.example.chatapp.data.local.entity.ParticipantRole
 import com.example.chatapp.data.local.entity.UserEntity
 import com.example.chatapp.data.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,6 +51,58 @@ class NewChatViewModel @Inject constructor(
                 }
             }
             state.copy(searchQuery = query, filteredContacts = filtered)
+        }
+    }
+
+    fun createBroadcastConversation(
+        conversationId: String,
+        title: String,
+        selectedContactIds: Set<String>,
+        recipientCount: Int,
+        linkedListCount: Int
+    ) {
+        viewModelScope.launch {
+            val now = System.currentTimeMillis()
+
+            val lastAdminText = when {
+                linkedListCount > 1 -> "You linked $linkedListCount lists to your audience."
+                linkedListCount == 1 -> "You linked 1 list to your audience."
+                else -> "You created an audience."
+            }
+
+            val conversation = ConversationEntity(
+                conversationId = conversationId,
+                title = title,
+                isGroup = false,
+                isBusinessChat = true,
+                isBroadcast = true,
+                broadcastRecipientCount = recipientCount,
+                broadcastLinkedListCount = linkedListCount,
+                createdAt = now,
+                updatedAt = now,
+                lastMessageText = lastAdminText,
+                lastMessageTimestamp = now
+            )
+            chatRepository.insertConversation(conversation)
+
+            chatRepository.insertParticipant(
+                ConversationParticipantEntity(
+                    conversationId = conversationId,
+                    userId = "user_1",
+                    role = ParticipantRole.ADMIN
+                )
+            )
+
+            val participants = selectedContactIds.map { userId ->
+                ConversationParticipantEntity(
+                    conversationId = conversationId,
+                    userId = userId,
+                    role = ParticipantRole.MEMBER
+                )
+            }
+            if (participants.isNotEmpty()) {
+                chatRepository.insertParticipants(participants)
+            }
         }
     }
 }

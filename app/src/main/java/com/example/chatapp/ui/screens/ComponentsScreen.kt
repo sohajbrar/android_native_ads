@@ -46,6 +46,7 @@ import com.example.chatapp.wds.components.WDSSectionDivider
 import com.example.chatapp.wds.components.WDSSupportedButton
 import com.example.chatapp.wds.components.WDSBottomBar
 import com.example.chatapp.wds.components.WDSContentRow
+import com.example.chatapp.wds.components.WDSToast
 import com.example.chatapp.wds.components.WDSTopBar
 import com.example.chatapp.data.local.entity.MessageEntity
 import com.example.chatapp.data.local.entity.MessageType
@@ -205,21 +206,27 @@ fun ComponentsScreen(
                     MessageItemSection()
                 }
             }
+
+            // Toast Section
+            item {
+                ComponentSection(title = "Toast") {
+                    ToastSection()
+                }
+            }
         }
     }
     
     // Dialog
     if (showDialog) {
         WdsDialog(
-            title = "Sample Dialog",
-            message = "This is an example of the WDS Dialog component with all design system tokens applied.",
-            icon = Icons.Default.Info,
+            title = "FYI, instruction or question",
+            message = "Offer key details and consequences users must understand to respond. State the issue's solution, if any. If the header is a question, CTAs must answer it.",
             positiveButton = WdsDialogButton(
-                text = "OK",
+                text = "Main action",
                 onClick = { showDialog = false }
             ),
             negativeButton = WdsDialogButton(
-                text = "Cancel",
+                text = "Cancel action",
                 onClick = { showDialog = false }
             ),
             onDismissRequest = { showDialog = false }
@@ -968,6 +975,23 @@ private fun MessageItemSection() {
             actionContent = {
                 MessageActionButton(text = "Add button")
             }
+        )
+    }
+}
+
+@Composable
+private fun ToastSection() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = WdsTheme.dimensions.wdsSpacingDouble),
+        verticalArrangement = Arrangement.spacedBy(WdsTheme.dimensions.wdsSpacingDouble)
+    ) {
+        WDSToast(
+            message = "To create an audience with individual contacts, remove the lists you\u2019ve selected.",
+            isVisible = true,
+            onDismiss = {},
+            durationMs = Long.MAX_VALUE
         )
     }
 }

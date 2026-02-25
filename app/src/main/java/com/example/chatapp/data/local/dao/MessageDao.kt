@@ -84,4 +84,12 @@ interface MessageDao {
     
     @Query("SELECT * FROM messages WHERE replyToMessageId = :messageId")
     fun getRepliesForMessage(messageId: String): Flow<List<MessageEntity>>
+
+    @Query("""
+        SELECT m.* FROM messages m
+        INNER JOIN conversations c ON m.conversationId = c.conversationId
+        WHERE c.isBroadcast = 1
+        ORDER BY m.timestamp DESC
+    """)
+    fun getBroadcastMessages(): Flow<List<MessageEntity>>
 }

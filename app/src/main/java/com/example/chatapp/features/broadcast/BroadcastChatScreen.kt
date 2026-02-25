@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -43,6 +44,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import android.widget.Toast
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -59,8 +63,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chatapp.R
 import com.example.chatapp.data.local.entity.MessageEntity
-import com.example.chatapp.data.local.entity.MessageStatus
-import com.example.chatapp.data.local.entity.MessageType
 import com.example.chatapp.features.chat.components.ChatComposer
 import com.example.chatapp.features.chat.components.DateHeader
 import com.example.chatapp.features.chat.components.MessageItem
@@ -75,13 +77,26 @@ import com.example.chatapp.wds.tokens.BaseDimensions
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BroadcastChatScreen(
+    conversationId: String = "",
     title: String,
     recipientCount: Int,
     linkedListCount: Int = 0,
     sentMessage: String? = null,
     onBackClick: () -> Unit = {},
-    onNextClick: (messageText: String) -> Unit = {}
+    onHeaderClick: () -> Unit = {},
+    onNextClick: (messageText: String) -> Unit = {},
+    onMessageProcessed: () -> Unit = {},
+    viewModel: BroadcastViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(sentMessage) {
+        if (!sentMessage.isNullOrBlank()) {
+            viewModel.addSentMessage(sentMessage, conversationId)
+            onMessageProcessed()
+        }
+    }
+
+    val sentMessages by viewModel.sentMessages.collectAsState()
+
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
@@ -98,7 +113,7 @@ fun BroadcastChatScreen(
 
     if (showComingSoonDialog) {
         WdsDialog(
-            message = "This feature is coming soon.",
+            title = "This feature is coming soon.",
             positiveButton = WdsDialogButton(
                 text = "OK",
                 onClick = { showComingSoonDialog = false }
@@ -118,6 +133,7 @@ fun BroadcastChatScreen(
                 title = title,
                 recipientCount = recipientCount,
                 onBackClick = onBackClick,
+                onHeaderClick = onHeaderClick,
                 onMoreClick = { showComingSoonDialog = true }
             )
         },
@@ -183,29 +199,18 @@ fun BroadcastChatScreen(
                 }
             }
 
-            if (sentMessage != null) {
-                item(key = "sent_message") {
-                    val sentMessageEntity = remember(sentMessage) {
-                        MessageEntity(
-                            messageId = "broadcast_sent",
-                            conversationId = "broadcast",
-                            senderId = "me",
-                            content = sentMessage,
-                            timestamp = System.currentTimeMillis(),
-                            messageType = MessageType.TEXT,
-                            isDelivered = true,
-                            status = MessageStatus.DELIVERED
-                        )
-                    }
-                    MessageItem(
-                        message = sentMessageEntity,
-                        isFromCurrentUser = true,
-                        isGroupChat = false,
-                        senderName = "",
-                        senderAvatar = null,
-                        showSenderInfo = false
-                    )
-                }
+            items(
+                items = sentMessages,
+                key = { it.messageId }
+            ) { message ->
+                MessageItem(
+                    message = message,
+                    isFromCurrentUser = true,
+                    isGroupChat = false,
+                    senderName = "",
+                    senderAvatar = null,
+                    showSenderInfo = false
+                )
             }
         }
     }
@@ -249,6 +254,7 @@ private fun BroadcastChatTopBar(
     title: String,
     recipientCount: Int,
     onBackClick: () -> Unit,
+    onHeaderClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -259,7 +265,9 @@ private fun BroadcastChatTopBar(
     TopAppBar(
         title = {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onHeaderClick() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(

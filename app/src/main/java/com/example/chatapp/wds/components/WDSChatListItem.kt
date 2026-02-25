@@ -280,6 +280,22 @@ private fun ChatListAvatar(
 
     if (avatarUrl != null && avatarUrl.isNotEmpty() && !imageLoadFailed) {
         when {
+            avatarUrl == "broadcast://" -> {
+                Surface(
+                    shape = CircleShape,
+                    color = colors.colorBroadcastAvatar,
+                    modifier = modifier.size(dimensions.wdsAvatarMediumLarge)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_business_broadcast),
+                            contentDescription = null,
+                            modifier = Modifier.size(dimensions.wdsIconSizeMedium),
+                            tint = colors.colorContentOnAccent
+                        )
+                    }
+                }
+            }
             avatarUrl.startsWith("drawable://") -> {
                 // Handle local drawable resources
                 val drawableResId = when (avatarUrl.removePrefix("drawable://")) {
