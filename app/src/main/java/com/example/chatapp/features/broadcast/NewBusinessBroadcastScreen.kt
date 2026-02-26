@@ -36,8 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.chatapp.R
 import com.example.chatapp.wds.components.WDSTopBar
-import com.example.chatapp.wds.components.WdsDialog
-import com.example.chatapp.wds.components.WdsDialogButton
+import com.example.chatapp.wds.components.WdsComingSoonDialog
 import com.example.chatapp.wds.theme.BaseColors
 import com.example.chatapp.wds.theme.WdsTheme
 
@@ -137,14 +136,7 @@ private fun NewBusinessBroadcastContent(
     var showComingSoonDialog by remember { mutableStateOf(false) }
 
     if (showComingSoonDialog) {
-        WdsDialog(
-            title = "This feature is coming soon.",
-            positiveButton = WdsDialogButton(
-                text = "OK",
-                onClick = { showComingSoonDialog = false }
-            ),
-            onDismissRequest = { showComingSoonDialog = false }
-        )
+        WdsComingSoonDialog(onDismissRequest = { showComingSoonDialog = false })
     }
 
     Scaffold(

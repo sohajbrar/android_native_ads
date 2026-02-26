@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +56,8 @@ import java.util.Locale
 fun BroadcastHomeScreen(
     onNavigateBack: () -> Unit,
     onNewBroadcastClick: () -> Unit = {},
-    onBroadcastClick: (String) -> Unit = {},
+    onBroadcastClick: (messageContent: String, sentTimestamp: Long, recipientCount: Int) -> Unit = { _, _, _ -> },
+    onAudienceClick: (conversationId: String, title: String, recipientCount: Int, linkedListCount: Int) -> Unit = { _, _, _, _ -> },
     viewModel: BroadcastHomeViewModel = hiltViewModel()
 ) {
     val colors = WdsTheme.colors
@@ -63,7 +65,7 @@ fun BroadcastHomeScreen(
     val typography = WdsTheme.typography
 
     val uiState by viewModel.uiState.collectAsState()
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val tabs = remember { listOf("Broadcasts", "Audiences") }
 
     val allConversations = uiState.broadcastConversations
@@ -118,10 +120,17 @@ fun BroadcastHomeScreen(
             when (selectedTabIndex) {
                 0 -> BroadcastsTab(
                     sentMessages = sentBroadcastMessages,
-                    onBroadcastClick = onBroadcastClick
+                    onBroadcastClick = { sentMessage ->
+                        onBroadcastClick(
+                            sentMessage.message.content,
+                            sentMessage.message.timestamp,
+                            sentMessage.recipientCount
+                        )
+                    }
                 )
                 1 -> AudiencesTab(
-                    conversations = allConversations
+                    conversations = allConversations,
+                    onAudienceClick = onAudienceClick
                 )
             }
         }
@@ -217,7 +226,7 @@ private fun MessageCreditsSection(
 @Composable
 private fun BroadcastsTab(
     sentMessages: List<BroadcastSentMessage>,
-    onBroadcastClick: (String) -> Unit
+    onBroadcastClick: (BroadcastSentMessage) -> Unit
 ) {
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
@@ -256,7 +265,7 @@ private fun BroadcastsTab(
             ) { _, sentMessage ->
                 BroadcastMessageRow(
                     sentMessage = sentMessage,
-                    onClick = { onBroadcastClick(sentMessage.message.conversationId) }
+                    onClick = { onBroadcastClick(sentMessage) }
                 )
             }
         }
@@ -344,7 +353,10 @@ private fun BroadcastMessageRow(
 }
 
 @Composable
-private fun AudiencesTab(conversations: List<ConversationEntity>) {
+private fun AudiencesTab(
+    conversations: List<ConversationEntity>,
+    onAudienceClick: (conversationId: String, title: String, recipientCount: Int, linkedListCount: Int) -> Unit
+) {
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
@@ -371,7 +383,14 @@ private fun AudiencesTab(conversations: List<ConversationEntity>) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { }
+                        .clickable {
+                            onAudienceClick(
+                                conversation.conversationId,
+                                conversation.title ?: "Untitled audience",
+                                conversation.broadcastRecipientCount,
+                                conversation.broadcastLinkedListCount
+                            )
+                        }
                         .padding(
                             horizontal = dimensions.wdsSpacingDouble,
                             vertical = dimensions.wdsSpacingSinglePlus

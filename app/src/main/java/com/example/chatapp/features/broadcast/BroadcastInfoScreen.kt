@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.chatapp.R
 import com.example.chatapp.data.local.entity.UserEntity
+import com.example.chatapp.wds.components.WdsComingSoonDialog
 import com.example.chatapp.wds.components.WdsDialog
 import com.example.chatapp.wds.components.WdsDialogButton
 import com.example.chatapp.wds.theme.WdsTheme
@@ -90,14 +91,7 @@ fun BroadcastInfoScreen(
     var showComingSoonDialog by remember { mutableStateOf(false) }
 
     if (showComingSoonDialog) {
-        WdsDialog(
-            title = "This feature is coming soon.",
-            positiveButton = WdsDialogButton(
-                text = "OK",
-                onClick = { showComingSoonDialog = false }
-            ),
-            onDismissRequest = { showComingSoonDialog = false }
-        )
+        WdsComingSoonDialog(onDismissRequest = { showComingSoonDialog = false })
     }
 
     if (showDeleteDialog) {

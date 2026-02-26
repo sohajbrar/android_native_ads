@@ -32,6 +32,7 @@ import com.example.chatapp.features.broadcast.BroadcastDraftScreen
 import com.example.chatapp.features.broadcast.BroadcastHomeScreen
 import com.example.chatapp.features.broadcast.BroadcastInfoScreen
 import com.example.chatapp.features.broadcast.BroadcastReviewScreen
+import com.example.chatapp.features.broadcast.MessageDetailsScreen
 import com.example.chatapp.features.broadcast.NewBusinessBroadcastScreen
 import com.example.chatapp.features.broadcast.SelectRecipientsScreen
 import com.example.chatapp.features.newchat.NewChatScreen
@@ -390,8 +391,44 @@ class MainActivity : ComponentActivity() {
                         BroadcastHomeScreen(
                             onNavigateBack = { navController.popBackStack() },
                             onNewBroadcastClick = {
-                                navController.navigate(Screen.NewBusinessBroadcast.route)
+                                navController.navigate(Screen.SelectRecipients.route)
+                            },
+                            onBroadcastClick = { messageContent, sentTimestamp, recipientCount ->
+                                val encodedContent = java.net.URLEncoder.encode(messageContent, "UTF-8")
+                                navController.navigate(
+                                    "${Screen.MessageDetails.route}/$encodedContent/$sentTimestamp/$recipientCount"
+                                )
+                            },
+                            onAudienceClick = { conversationId, title, recipientCount, linkedListCount ->
+                                val encodedConversationId = java.net.URLEncoder.encode(conversationId, "UTF-8")
+                                val encodedTitle = java.net.URLEncoder.encode(title, "UTF-8")
+                                navController.navigate(
+                                    "${Screen.BroadcastChat.route}/$encodedConversationId/$encodedTitle/$recipientCount/$linkedListCount"
+                                )
                             }
+                        )
+                    }
+
+                    composable(
+                        route = "${Screen.MessageDetails.route}/{messageContent}/{sentTimestamp}/{recipientCount}",
+                        arguments = listOf(
+                            navArgument("messageContent") { type = NavType.StringType },
+                            navArgument("sentTimestamp") { type = NavType.LongType },
+                            navArgument("recipientCount") { type = NavType.IntType }
+                        )
+                    ) { backStackEntry ->
+                        val messageContent = java.net.URLDecoder.decode(
+                            backStackEntry.arguments?.getString("messageContent") ?: "",
+                            "UTF-8"
+                        )
+                        val sentTimestamp = backStackEntry.arguments?.getLong("sentTimestamp") ?: 0L
+                        val recipientCount = backStackEntry.arguments?.getInt("recipientCount") ?: 0
+
+                        MessageDetailsScreen(
+                            messageContent = messageContent,
+                            sentTimestamp = sentTimestamp,
+                            recipientCount = recipientCount,
+                            onBackClick = { navController.popBackStack() }
                         )
                     }
 

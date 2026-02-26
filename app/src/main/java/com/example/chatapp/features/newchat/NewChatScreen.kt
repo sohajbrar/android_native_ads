@@ -55,8 +55,7 @@ import com.example.chatapp.R
 import com.example.chatapp.data.local.entity.UserEntity
 import com.example.chatapp.wds.components.WDSSearchBar
 import com.example.chatapp.wds.components.WDSTopBar
-import com.example.chatapp.wds.components.WdsDialog
-import com.example.chatapp.wds.components.WdsDialogButton
+import com.example.chatapp.wds.components.WdsComingSoonDialog
 import com.example.chatapp.wds.theme.WdsTheme
 
 @Composable
@@ -99,14 +98,7 @@ private fun NewChatContent(
     var showComingSoon by remember { mutableStateOf(false) }
 
     if (showComingSoon) {
-        WdsDialog(
-            title = "This feature is coming soon.",
-            positiveButton = WdsDialogButton(
-                text = "OK",
-                onClick = { showComingSoon = false }
-            ),
-            onDismissRequest = { showComingSoon = false }
-        )
+        WdsComingSoonDialog(onDismissRequest = { showComingSoon = false })
     }
 
     Scaffold(

@@ -52,11 +52,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import android.widget.Toast
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,8 +66,7 @@ import com.example.chatapp.features.chat.components.DateHeader
 import com.example.chatapp.features.chat.components.MessageItem
 import com.example.chatapp.wds.components.WDSSystemMessage
 import com.example.chatapp.wds.components.WDSSystemMessageType
-import com.example.chatapp.wds.components.WdsDialog
-import com.example.chatapp.wds.components.WdsDialogButton
+import com.example.chatapp.wds.components.WdsComingSoonDialog
 import com.example.chatapp.wds.theme.BaseColors
 import com.example.chatapp.wds.theme.WdsTheme
 import com.example.chatapp.wds.tokens.BaseDimensions
@@ -101,25 +98,13 @@ fun BroadcastChatScreen(
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
 
-    val context = LocalContext.current
     var composerText by remember { mutableStateOf("") }
     var showAttachmentPanel by remember { mutableStateOf(false) }
     var showGallerySheet by remember { mutableStateOf(false) }
     var showComingSoonDialog by remember { mutableStateOf(false) }
 
-    val showComingSoonToast = remember {
-        { Toast.makeText(context, "This feature is coming soon.", Toast.LENGTH_SHORT).show() }
-    }
-
     if (showComingSoonDialog) {
-        WdsDialog(
-            title = "This feature is coming soon.",
-            positiveButton = WdsDialogButton(
-                text = "OK",
-                onClick = { showComingSoonDialog = false }
-            ),
-            onDismissRequest = { showComingSoonDialog = false }
-        )
+        WdsComingSoonDialog(onDismissRequest = { showComingSoonDialog = false })
     }
 
     if (showGallerySheet) {
@@ -134,7 +119,7 @@ fun BroadcastChatScreen(
                 recipientCount = recipientCount,
                 onBackClick = onBackClick,
                 onHeaderClick = onHeaderClick,
-                onMoreClick = { showComingSoonDialog = true }
+                onMoreClick = onHeaderClick
             )
         },
         bottomBar = {
@@ -143,10 +128,10 @@ fun BroadcastChatScreen(
                     value = composerText,
                     onValueChange = { composerText = it },
                     onSendClick = { onNextClick(composerText) },
-                    onAttachClick = showComingSoonToast,
-                    onCameraClick = showComingSoonToast,
+                    onAttachClick = { showComingSoonDialog = true },
+                    onCameraClick = { showComingSoonDialog = true },
                     isBroadcast = true,
-                    onStickerClick = showComingSoonToast
+                    onStickerClick = { showComingSoonDialog = true }
                 )
                 AnimatedVisibility(
                     visible = showAttachmentPanel,

@@ -38,7 +38,8 @@ class BroadcastHomeViewModel @Inject constructor(
                         BroadcastSentMessage(
                             message = message,
                             conversationTitle = conversation.title,
-                            recipientCount = conversation.broadcastRecipientCount
+                            recipientCount = conversation.broadcastRecipientCount,
+                            linkedListCount = conversation.broadcastLinkedListCount
                         )
                     }
                 }
@@ -59,7 +60,8 @@ class BroadcastHomeViewModel @Inject constructor(
 data class BroadcastSentMessage(
     val message: MessageEntity,
     val conversationTitle: String?,
-    val recipientCount: Int
+    val recipientCount: Int,
+    val linkedListCount: Int = 0
 )
 
 data class BroadcastHomeUiState(

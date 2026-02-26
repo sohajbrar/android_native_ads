@@ -17,6 +17,7 @@ sealed class Screen(val route: String) {
     data object BroadcastInfo : Screen("broadcast_info")
     data object BroadcastDraft : Screen("broadcast_draft")
     data object BroadcastReview : Screen("broadcast_review")
+    data object MessageDetails : Screen("message_details")
 
     // Design system screens
     data object DesignSystemLibrary : Screen("design_system_library")

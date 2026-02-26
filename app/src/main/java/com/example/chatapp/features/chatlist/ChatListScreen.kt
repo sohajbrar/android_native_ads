@@ -687,7 +687,9 @@ fun ChatListBottomBar(
                     }
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_chats_rounded),
+                        painter = painterResource(
+                            if (selectedTab == 0) R.drawable.ic_chats_rounded else R.drawable.ic_chats_rounded_outlined
+                        ),
                         contentDescription = "Chats"
                     )
                 }

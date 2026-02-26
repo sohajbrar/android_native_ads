@@ -72,6 +72,7 @@ import com.example.chatapp.wds.components.WDSFabStyle
 import com.example.chatapp.wds.components.WDSSectionDivider
 import com.example.chatapp.wds.components.WDSToast
 import com.example.chatapp.wds.components.WDSTopBar
+import com.example.chatapp.wds.components.WdsComingSoonDialog
 import com.example.chatapp.wds.theme.WdsTheme
 
 data class ContactList(
@@ -222,8 +223,14 @@ private fun SelectRecipientsContent(
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
 
+    var showComingSoonDialog by remember { mutableStateOf(false) }
+
     val formattedSelected = String.format("%,d", selectedCount)
     val formattedTotal = String.format("%,d", totalCount)
+
+    if (showComingSoonDialog) {
+        WdsComingSoonDialog(onDismissRequest = { showComingSoonDialog = false })
+    }
 
     Scaffold(
         containerColor = colors.colorSurfaceDefault,
@@ -233,7 +240,7 @@ private fun SelectRecipientsContent(
                 subtitle = "$formattedSelected of $formattedTotal selected",
                 onNavigateBack = onNavigateBack,
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { showComingSoonDialog = true }) {
                         Icon(
                             imageVector = Icons.Outlined.Search,
                             contentDescription = "Search",
@@ -274,7 +281,7 @@ private fun SelectRecipientsContent(
                         WDSSectionDivider(
                             title = "Your lists",
                             actionText = "See all",
-                            onActionClick = { }
+                            onActionClick = { showComingSoonDialog = true }
                         )
                     }
 

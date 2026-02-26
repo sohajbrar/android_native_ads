@@ -27,8 +27,7 @@ import com.example.chatapp.features.chat.components.MessageItem
 import com.example.chatapp.wds.components.WDSBottomBar
 import com.example.chatapp.wds.components.WDSDivider
 import com.example.chatapp.wds.components.WDSTopBar
-import com.example.chatapp.wds.components.WdsDialog
-import com.example.chatapp.wds.components.WdsDialogButton
+import com.example.chatapp.wds.components.WdsComingSoonDialog
 import com.example.chatapp.wds.theme.WdsTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,15 +43,7 @@ fun BroadcastDraftScreen(
     var showComingSoonDialog by remember { mutableStateOf(false) }
 
     if (showComingSoonDialog) {
-        WdsDialog(
-            title = "Coming soon",
-            message = "This feature is not yet available.",
-            positiveButton = WdsDialogButton(
-                text = "OK",
-                onClick = { showComingSoonDialog = false }
-            ),
-            onDismissRequest = { showComingSoonDialog = false }
-        )
+        WdsComingSoonDialog(onDismissRequest = { showComingSoonDialog = false })
     }
 
     val mockMessage = remember(messageText) {
