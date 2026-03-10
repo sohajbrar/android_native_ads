@@ -1,87 +1,134 @@
-# WA Business Broadcast
+# WhatsApp Business — Native Ads Prototype
 
-A WhatsApp Business Android sandbox built with Jetpack Compose — a high-fidelity prototype for the Business Broadcast feature, built on top of [Somya's WhatsApp Business vibe coded templates](https://drive.google.com/drive/folders/1P6NuF5AqXPFO-NG3v1-8V9rAp_lbyCaH). Thanks Somya!
+A high-fidelity Android prototype for the WhatsApp Business **Ad Creation** and **Manage Ads** flows, built with Jetpack Compose and the WhatsApp Design System (WDS). This prototype covers the complete end-to-end journey — from media selection and ad design through audience targeting, budget configuration, ad review, and post-creation ad management with performance tracking.
 
-## Overview
+## Key Flows
 
-WA Business Broadcast is a production-quality prototype built with Jetpack Compose and WDS (WhatsApp Design System). It implements the end-to-end Business Broadcast flow — from audience creation and recipient selection through message composition, review, and sending.
+### 1. Ad Creation Flow
 
-### Key Flows
+A multi-step stepper flow with animated progress bar, accessible from the Tools tab or Manage Ads screen:
 
-**1. Create New Business Broadcast**
+**Media Selection** → **Design Ad** → **Audience** → **Budget & Duration** → **Review & Create**
 
-`+` FAB → **New business broadcast** → **New audiences** → Select recipients → Compose message → Review & send
+- **Media Selection** — Choose from catalog items, business profile, status updates, gallery photos/videos, device camera, or product catalog
+- **Design Ad** — Preview the ad creative with selected media, edit call-to-action text
+- **Preview Ad** — Full Instagram and Facebook ad preview with selected media
+- **Audience** — Select suggested audience or saved custom audiences, with Advantage+ audience support
+- **Budget & Duration** — Set daily budget with slider, choose between continuous or fixed-duration campaigns
+- **Review Ad** — Summary of all settings with inline editing, final "Create ad" action with slide-down dismiss animation
 
-**2. Broadcast Home**
+### 2. Audience Targeting
 
-Tools tab → **Business broadcasts** → View sent broadcasts, audiences, and message credits
+- **Suggested audience** with Advantage+ audience toggle and details card (location, minimum age)
+- **Create new audience** — Location, interests, age range slider, gender chips, Advantage+ toggle
+- **Edit audience** — Pre-populated fields for both default and saved audiences
+- **Edit Location** — Regional mode (search and select cities/countries with chips) and Local mode (map placeholder with radius slider and "Use my location")
+- **Edit Interests** — Browse categories (Business, Entertainment, Fitness, etc.), search across all interests, selected/suggested sections
+
+### 3. Manage Ads
+
+Accessed from the Tools tab, this screen provides a dashboard for all ads:
+
+- **Metrics overview** — Total reach, amount spent, conversations started
+- **For you** — Horizontally scrollable recommendation cards with ad performance insights
+- **Your ads** — List of all ads with status (Active, Paused, Completed, In Review), thumbnails, metrics per row
+- **Ad Details** — Full ad summary with preview, audience, budget, and performance breakdown
+- **Ad Performance** — Tabular metrics breakdown (reach, impressions, clicks, conversations, cost)
+- **Create ad FAB** — Initiates the ad creation flow; newly created ads appear at top with "In review" status and snackbar notification
 
 ## Architecture
 
 ```
 app/src/main/java/com/example/chatapp/
-├── features/broadcast/                        # Business Broadcast feature
-│   ├── BroadcastHomeScreen.kt                 # Landing page: credits, broadcasts & audiences tabs
-│   ├── BroadcastHomeViewModel.kt              # Loads broadcast conversations & sent messages
-│   ├── NewBusinessBroadcastScreen.kt          # Audience selection entry (new/suggested/existing)
-│   ├── SelectRecipientsScreen.kt              # Recipient picker (contact lists & individual contacts)
-│   ├── BroadcastChatScreen.kt                 # Broadcast conversation view with composer
-│   ├── BroadcastDraftScreen.kt                # Message preview/draft with optional CTA button
-│   ├── BroadcastReviewScreen.kt               # Final review: credits, cost, disclaimers, send/schedule
-│   ├── BroadcastInfoScreen.kt                 # Broadcast details: recipients, linked lists, delete
-│   ├── BroadcastViewModel.kt                  # Chat screen ViewModel (message persistence)
-│   └── BroadcastInfoViewModel.kt              # Info screen ViewModel (conversation & participants)
-├── features/                                  # Other feature screens
-│   ├── chatlist/                              # Chat list (main tab)
-│   ├── chat/                                  # Chat conversation
-│   ├── chatinfo/                              # Contact/group info
-│   ├── newchat/                               # New chat creation
-│   ├── tools/                                 # Business tools
-│   └── main/                                  # Main view model
-├── data/                                      # Data layer
-│   ├── local/                                 # Room database, DAOs, entities, converters
-│   ├── repository/ChatRepository.kt           # Single source of truth
-│   ├── generator/ChatDataGenerator.kt         # Sample data
-│   └── initializer/DatabaseInitializer.kt     # DB setup
-├── navigation/Screen.kt                       # Navigation routes
-├── wds/                                       # WhatsApp Design System
-│   ├── theme/                                 # Color tokens & themes
-│   ├── tokens/                                # Spacing, shapes, typography
-│   └── components/                            # Reusable UI components
-└── di/DatabaseModule.kt                       # Hilt DI module
+├── features/advertise/                          # Native Ads feature
+│   ├── MediaSelectionScreen.kt                  # Media source picker (catalog, gallery, camera, status)
+│   ├── MediaPickerBottomSheet.kt                # Gallery media picker with grid, tabs, date grouping
+│   ├── ChooseStatusScreen.kt                    # Full-screen WhatsApp status media picker
+│   ├── ChooseCatalogScreen.kt                   # Full-screen catalog media picker by category
+│   ├── DesignAdScreen.kt                        # Ad creative editor with media preview
+│   ├── PreviewAdScreen.kt                       # Instagram & Facebook ad preview tabs
+│   ├── AudienceScreen.kt                        # Audience selection with radio options & details cards
+│   ├── CreateNewAudienceScreen.kt               # Create/edit audience (location, interests, age, gender)
+│   ├── EditLocationScreen.kt                    # Regional & local location editor with search
+│   ├── EditInterestsScreen.kt                   # Interest browser with categories, search, suggestions
+│   ├── BudgetScreen.kt                          # Daily budget slider & duration options
+│   ├── ReviewAdScreen.kt                        # Final review summary with inline edit navigation
+│   ├── ManageAdsScreen.kt                       # Ad dashboard with metrics, recommendations, ad list
+│   ├── AdDetailsScreen.kt                       # Individual ad details and actions
+│   ├── AdPerformanceScreen.kt                   # Tabular performance metrics breakdown
+│   ├── AdCreationProgressBar.kt                 # Animated stepper progress bar
+│   ├── AdCreationViewModel.kt                   # Shared state across the ad creation flow
+│   └── CreatedAdsStore.kt                       # Singleton store for persisting created ads
+├── features/                                    # Other feature screens
+│   ├── chatlist/                                # Chat list (main tab)
+│   ├── chat/                                    # Chat conversation
+│   ├── chatinfo/                                # Contact/group info
+│   ├── newchat/                                 # New chat creation
+│   ├── tools/                                   # Business tools tab
+│   ├── broadcast/                               # Business broadcast
+│   └── main/                                    # Main view model
+├── data/                                        # Data layer
+│   ├── local/                                   # Room database, DAOs, entities
+│   ├── repository/ChatRepository.kt             # Single source of truth
+│   └── generator/ChatDataGenerator.kt           # Sample data
+├── navigation/Screen.kt                         # All navigation routes
+├── wds/                                         # WhatsApp Design System
+│   ├── theme/                                   # Color tokens, business dark theme
+│   ├── tokens/                                  # Spacing, shapes, typography
+│   └── components/                              # Reusable UI components with tap sounds
+└── di/DatabaseModule.kt                         # Hilt DI module
 ```
 
-### Broadcast Flow
+### Navigation
+
+The ad creation flow uses a **nested navigation graph** (`advertise_flow`) to scope a shared `AdCreationViewModel` across all stepper screens. Back navigation returns to the correct origin (Tools tab or Manage Ads) based on entry point.
 
 ```
-BroadcastHomeScreen
+ToolsScreen / ManageAdsScreen
     │
-    ├─ [FAB +] ──→ NewBusinessBroadcastScreen
-    │                   │
-    │                   └─ [New audience] ──→ SelectRecipientsScreen
-    │                                             │
-    │                                             └─ [Next] ──→ BroadcastChatScreen
-    │                                                              │
-    │                                                              ├─ [Compose → Send] ──→ BroadcastDraftScreen
-    │                                                              │                            │
-    │                                                              │                            └─ [Next] ──→ BroadcastReviewScreen
-    │                                                              │                                              │
-    │                                                              │                                              └─ [Send now] ──→ BroadcastChatScreen
-    │                                                              │
-    │                                                              └─ [Header tap] ──→ BroadcastInfoScreen
+    └─ [Create Ad FAB] ──→ MediaSelectionScreen
+                               │
+                               ├─ [Gallery] ──→ MediaPickerBottomSheet ──→ DesignAdScreen
+                               ├─ [Camera] ──→ Device Camera ──→ DesignAdScreen
+                               ├─ [Status] ──→ ChooseStatusScreen ──→ DesignAdScreen
+                               ├─ [Catalog] ──→ ChooseCatalogScreen ──→ DesignAdScreen
+                               └─ [Catalog item / Business] ──→ DesignAdScreen
+                                                                    │
+                                                                    ├─ [Preview] ──→ PreviewAdScreen
+                                                                    └─ [Next] ──→ AudienceScreen
+                                                                                      │
+                                                                                      ├─ [Create new] ──→ CreateNewAudienceScreen
+                                                                                      │                       ├─ [Locations] ──→ EditLocationScreen
+                                                                                      │                       └─ [Interests] ──→ EditInterestsScreen
+                                                                                      └─ [Next] ──→ BudgetScreen
+                                                                                                        │
+                                                                                                        └─ [Next] ──→ ReviewAdScreen
+                                                                                                                         │
+                                                                                                                         └─ [Create ad] ──→ ManageAdsScreen (slide-down dismiss)
+
+ManageAdsScreen
     │
-    └─ [Tap broadcast] ──→ BroadcastChatScreen (existing conversation)
+    └─ [Tap ad row] ──→ AdDetailsScreen
+                            │
+                            ├─ [See details] ──→ AdPerformanceScreen
+                            └─ [Ad preview] ──→ PreviewAdScreen (close button)
 ```
 
-### ViewModels
+### State Management
 
-| ViewModel | Scope | Responsibility |
-|-----------|-------|----------------|
-| `BroadcastHomeViewModel` | Home screen | Loads broadcast conversations and sent messages from repository |
-| `BroadcastViewModel` | Chat screen | Manages message persistence via `SavedStateHandle` conversation ID |
-| `BroadcastInfoViewModel` | Info screen | Loads conversation details, participants, and handles deletion |
+| Component | Type | Responsibility |
+|-----------|------|----------------|
+| `AdCreationViewModel` | HiltViewModel | Shared state for entire ad creation flow — media, audience, budget, duration, progress |
+| `CreatedAdsStore` | Singleton | Persists created ads across navigation, tracks selected ad for details |
+| `ManageAdsViewModel` | HiltViewModel | Provides access to `CreatedAdsStore` for Manage Ads screens |
 
-`SelectRecipientsScreen` reuses `NewChatViewModel` from the `newchat` feature for contact access and broadcast conversation creation.
+### Key Design Decisions
+
+- **WhatsApp Business dark theme** — Custom `WdsSemanticBusinessDarkColors` with white/light accent colors instead of green, matching the real WhatsApp Business app
+- **System tap sounds** — Global `clickableWithSound` modifier applied to all interactive elements throughout the app
+- **Card border styling** — Centralized `wdsCardBorder()` component with 30% opacity for consistent, subtle card borders
+- **Tab transitions** — No animation between main Chats/Tools tabs for seamless switching
+- **Progress bar animation** — Animates forward on "Next" and backward on "Back", tracking state in ViewModel
 
 ## Getting Started
 
@@ -98,43 +145,14 @@ BroadcastHomeScreen
 3. Wait for Gradle sync to complete
 4. Build and run (Shift+F10)
 
+Alternatively, download the latest APK from the [GitHub Actions](https://github.com/sohajbrar/android_native_ads/actions) build artifacts.
+
 ### Vibe Coding with AI
 
 1. Open the project folder in **Cursor**
-2. The AI assistant will automatically follow WDS rules via `CLAUDE.md`
+2. The AI assistant will follow WDS rules via `CLAUDE.md`
 3. Prompt Cursor to make changes
 4. Return to Android Studio and rebuild
-
-## Key Components
-
-### Broadcast Screens
-- `BroadcastHomeScreen` — Credits progress, broadcasts tab, audiences tab, FAB
-- `NewBusinessBroadcastScreen` — New/suggested/existing audience selection
-- `SelectRecipientsScreen` — Contact list and individual contact picker with selection chips
-- `BroadcastChatScreen` — Conversation view with system messages and composer
-- `BroadcastDraftScreen` — Message preview with optional CTA button
-- `BroadcastReviewScreen` — Credits summary, cost, legal disclaimers, send/schedule actions
-- `BroadcastInfoScreen` — Audience details, recipients list, linked lists, delete action
-
-### WDS Components
-- `WDSTopBar` — Top app bar with title and actions
-- `WDSBottomBar` — Bottom tab navigation
-- `WDSButton` — Multi-variant (Filled, Tonal, Outline, Borderless)
-- `WDSChip` — Filter and input chips
-- `WDSTextField` — Single-line and multi-line text fields
-- `WDSSearchBar` — Search input bar
-- `WDSFab` — Floating action button
-- `WDSTabRow` — Horizontal tab row with indicator
-- `WDSToast` — Slide-up toast notification with auto-dismiss
-- `WDSChatListItem` — Chat list row
-- `WDSContentRow` — Generic content row
-- `WDSListRow` — Standard list row
-- `WDSSystemMessage` — System message bubble
-- `WDSDivider` / `WDSSectionDivider` — Dividers
-- `WDSBottomSheet` — Bottom sheet
-- `WDSContextMenu` — Popup menu
-- `WdsCheckbox` / `WdsRadioButton` / `WdsSwitch` — Selection controls
-- `WdsDialog` / `WdsComingSoonDialog` — Modal dialogs
 
 ## License
 
