@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
+import android.view.SoundEffectConstants
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.example.chatapp.wds.theme.WdsTheme
 
@@ -55,6 +57,7 @@ fun WDSButton(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
+    val view = LocalView.current
     val colors = getButtonColors(variant, action)
     val border = getButtonBorder(variant, action, enabled)
     val shape = getButtonShape(size)
@@ -64,7 +67,7 @@ fun WDSButton(
     val isIconOnly = text == null && icon != null
 
     Button(
-        onClick = onClick,
+        onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onClick() },
         modifier = if (isIconOnly) {
             // Icon-only buttons should be square (equal width and height)
             modifier.size(minHeight)

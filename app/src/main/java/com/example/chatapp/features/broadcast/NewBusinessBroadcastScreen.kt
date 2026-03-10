@@ -2,7 +2,7 @@
 
 package com.example.chatapp.features.broadcast
 
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -205,7 +205,7 @@ private fun NewAudienceRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickableWithSound { onClick() }
             .padding(
                 horizontal = dimensions.wdsSpacingDouble,
                 vertical = dimensions.wdsSpacingSinglePlus
@@ -279,7 +279,7 @@ private fun AudienceRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickableWithSound { onClick() }
             .padding(
                 horizontal = dimensions.wdsSpacingDouble,
                 vertical = dimensions.wdsSpacingSinglePlus

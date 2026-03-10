@@ -1,5 +1,6 @@
 package com.example.chatapp.features.chat.components
 
+import android.view.SoundEffectConstants
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -11,7 +12,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ripple
@@ -52,6 +53,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -120,6 +122,7 @@ fun ChatComposer(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val shapes = WdsTheme.shapes
+    val view = LocalView.current
 
     // Track line count for multiline detection
     var lineCount by remember { mutableStateOf(1) }
@@ -205,7 +208,7 @@ fun ChatComposer(
                         modifier = Modifier
                             .size(dimensions.wdsTouchTargetComfortable)
                             .align(Alignment.Bottom)
-                            .clickable(
+                            .clickableWithSound(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = ripple(bounded = false, radius = 20.dp),
                                 onClick = onStickerClick
@@ -420,7 +423,7 @@ fun ChatComposer(
                             Box(
                                 modifier = Modifier
                                     .size(dimensions.wdsTouchTargetStandard)
-                                    .clickable(
+                                    .clickableWithSound(
                                         interactionSource = remember { MutableInteractionSource() },
                                         indication = ripple(bounded = false, radius = 20.dp),
                                         onClick = onAttachClick
@@ -440,7 +443,7 @@ fun ChatComposer(
                                 Box(
                                     modifier = Modifier
                                         .size(dimensions.wdsTouchTargetStandard)
-                                        .clickable(
+                                        .clickableWithSound(
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = ripple(bounded = false, radius = 20.dp),
                                             onClick = onCameraClick
@@ -466,7 +469,7 @@ fun ChatComposer(
                 exit = shrinkHorizontally(animationSpec = tween(200)) + scaleOut(animationSpec = tween(200)) + fadeOut(animationSpec = tween(200))
             ) {
                 FloatingActionButton(
-                    onClick = onSendClick,
+                    onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onSendClick() },
                     modifier = Modifier.size(dimensions.wdsTouchTargetComfortable),
                     containerColor = colors.colorAccent,
                     shape = CircleShape,
@@ -1025,7 +1028,7 @@ fun UnreadMessagesPill(
             modifier = Modifier
                 .clip(WdsTheme.shapes.double)
                 .background(colors.colorSurfaceDefault)
-                .clickable { onClick() },
+                .clickableWithSound { onClick() },
             contentAlignment = Alignment.Center
         ) {
             Row(

@@ -2,9 +2,10 @@
 
 package com.example.chatapp.features.broadcast
 
+import android.view.SoundEffectConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,6 +66,7 @@ fun MessageDetailsScreen(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     var showComingSoonDialog by remember { mutableStateOf(false) }
 
@@ -97,7 +100,7 @@ fun MessageDetailsScreen(
                 title = "Message details",
                 onNavigateBack = onBackClick,
                 actions = {
-                    IconButton(onClick = { showComingSoonDialog = true }) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); showComingSoonDialog = true }) {
                         Icon(
                             imageVector = Icons.Outlined.MoreVert,
                             contentDescription = "More options",
@@ -183,7 +186,7 @@ private fun MessagePreviewRow(
         modifier = Modifier
             .fillMaxWidth()
             .height(70.dp)
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(horizontal = dimensions.wdsSpacingDouble),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -366,7 +369,7 @@ private fun MetricRow(
         modifier = Modifier
             .fillMaxWidth()
             .then(
-                if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+                if (onClick != null) Modifier.clickableWithSound(onClick = onClick) else Modifier
             )
             .padding(
                 horizontal = dimensions.wdsSpacingDouble,

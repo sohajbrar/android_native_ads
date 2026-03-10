@@ -2,7 +2,6 @@ package com.example.chatapp.wds.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -66,7 +65,7 @@ fun WDSChatListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickableWithSound { onClick() }
             .padding(
                 horizontal = dimensions.wdsSpacingDouble,
                 vertical = dimensions.wdsSpacingSinglePlus

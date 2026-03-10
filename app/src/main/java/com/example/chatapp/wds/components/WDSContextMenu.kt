@@ -1,6 +1,5 @@
 package com.example.chatapp.wds.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -111,7 +110,7 @@ private fun WDSContextMenuListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 12.dp)
             .height(24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),

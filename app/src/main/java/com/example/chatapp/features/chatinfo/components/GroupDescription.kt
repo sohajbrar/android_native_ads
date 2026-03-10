@@ -1,6 +1,6 @@
 package com.example.chatapp.features.chatinfo.components
 
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -39,7 +39,7 @@ fun GroupDescription(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onAddDescription() },
+                        .clickableWithSound { onAddDescription() },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(

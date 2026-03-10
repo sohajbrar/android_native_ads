@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
+import android.view.SoundEffectConstants
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.example.chatapp.wds.theme.WdsTheme
 
@@ -91,6 +93,7 @@ fun WDSChip(
     badgeText: String? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
+    val view = LocalView.current
     val endAddon = getEndAddon(action, selected)
     val hasIcon = icon != null
     val hasAddon = badgeText != null || endAddon != null
@@ -98,7 +101,7 @@ fun WDSChip(
     
     FilterChip(
         selected = selected,
-        onClick = onClick,
+        onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onClick() },
         label = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

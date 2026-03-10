@@ -1,5 +1,6 @@
 package com.example.chatapp.ui.screens
 
+import android.view.SoundEffectConstants
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -360,6 +362,7 @@ private fun SelectionControlsSection() {
     var checkboxState by remember { mutableStateOf(true) }
     var radioState by remember { mutableStateOf(0) }
     var switchState by remember { mutableStateOf(true) }
+    val view = LocalView.current
     
     Column(
         modifier = Modifier
@@ -387,7 +390,7 @@ private fun SelectionControlsSection() {
             ) {
                 WdsRadioButton(
                     selected = radioState == 0,
-                    onClick = { radioState = 0 }
+                    onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); radioState = 0 }
                 )
                 Text(text = "Option 1", color = WdsTheme.colors.colorContentDefault)
             }
@@ -397,7 +400,7 @@ private fun SelectionControlsSection() {
             ) {
                 WdsRadioButton(
                     selected = radioState == 1,
-                    onClick = { radioState = 1 }
+                    onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); radioState = 1 }
                 )
                 Text(text = "Option 2", color = WdsTheme.colors.colorContentDefault)
             }

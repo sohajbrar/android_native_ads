@@ -1,6 +1,6 @@
 package com.example.chatapp.features.chatinfo.components
 
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -29,7 +29,7 @@ fun ContactManagementSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onToggleDisappearingMessages() }
+                .clickableWithSound { onToggleDisappearingMessages() }
                 .padding(WdsTheme.dimensions.wdsSpacingDouble),
             verticalAlignment = Alignment.CenterVertically
         ) {

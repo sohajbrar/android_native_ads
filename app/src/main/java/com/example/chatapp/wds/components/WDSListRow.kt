@@ -1,7 +1,6 @@
 package com.example.chatapp.wds.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -44,7 +43,7 @@ fun WDSListRow(
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
-            .clickable { onClick() }
+            .clickableWithSound { onClick() }
             .padding(horizontal = dimensions.wdsSpacingTriple), // 24dp horizontal only
         horizontalArrangement = Arrangement.spacedBy(dimensions.wdsSpacingDouble), // 16dp gap
         verticalAlignment = Alignment.CenterVertically

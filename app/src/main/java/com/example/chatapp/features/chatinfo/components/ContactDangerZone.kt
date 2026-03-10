@@ -1,6 +1,6 @@
 package com.example.chatapp.features.chatinfo.components
 
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,7 +38,7 @@ fun ContactDangerZone(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showBlockDialog = true }
+                    .clickableWithSound { showBlockDialog = true }
                     .padding(WdsTheme.dimensions.wdsSpacingDouble),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -62,7 +62,7 @@ fun ContactDangerZone(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showReportDialog = true }
+                    .clickableWithSound { showReportDialog = true }
                     .padding(WdsTheme.dimensions.wdsSpacingDouble),
                 verticalAlignment = Alignment.CenterVertically
             ) {

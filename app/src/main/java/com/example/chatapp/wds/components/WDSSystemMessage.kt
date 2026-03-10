@@ -1,6 +1,5 @@
 package com.example.chatapp.wds.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -285,7 +284,7 @@ private fun ClickableMessageTextWithIcon(
             lineHeight = typography.body3.lineHeight // 16sp from body3
         ),
         textAlign = TextAlign.Center,
-        modifier = modifier.clickable {
+        modifier = modifier.clickableWithSound {
             // Check if "Learn more" was clicked
             // For now, just trigger the callback on any click
             onLearnMoreClick()

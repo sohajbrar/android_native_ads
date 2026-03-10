@@ -1,7 +1,7 @@
 package com.example.chatapp.features.chatinfo.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -56,7 +56,7 @@ fun GroupParticipantsSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onAddToCommunity() }
+                    .clickableWithSound { onAddToCommunity() }
                     .padding(start = WdsTheme.dimensions.wdsSpacingSingle, end = WdsTheme.dimensions.wdsSpacingDouble, top = WdsTheme.dimensions.wdsSpacingSinglePlus, bottom = WdsTheme.dimensions.wdsSpacingSinglePlus),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -110,7 +110,7 @@ fun GroupParticipantsSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onAddParticipant() }
+                    .clickableWithSound { onAddParticipant() }
                     .padding(start = WdsTheme.dimensions.wdsSpacingSingle, end = WdsTheme.dimensions.wdsSpacingDouble, top = WdsTheme.dimensions.wdsSpacingDouble, bottom = WdsTheme.dimensions.wdsSpacingDouble),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -140,7 +140,7 @@ fun GroupParticipantsSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onInviteViaLink() }
+                    .clickableWithSound { onInviteViaLink() }
                     .padding(start = WdsTheme.dimensions.wdsSpacingSingle, end = WdsTheme.dimensions.wdsSpacingDouble, top = WdsTheme.dimensions.wdsSpacingDouble, bottom = WdsTheme.dimensions.wdsSpacingDouble),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -197,7 +197,7 @@ private fun ParticipantItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
+            .clickableWithSound {
                 if (!isCurrentUser) {
                     showOptions = true
                 } else {

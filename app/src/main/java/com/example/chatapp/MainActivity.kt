@@ -23,10 +23,27 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import com.example.chatapp.data.local.entity.ConversationEntity
 import com.example.chatapp.features.main.MainViewModel
 import com.example.chatapp.features.chat.ChatScreen
 import com.example.chatapp.features.chatlist.ChatListScreen
+import com.example.chatapp.features.advertise.AdCreationViewModel
+import com.example.chatapp.features.advertise.AudienceScreen
+import com.example.chatapp.features.advertise.ChooseCatalogScreen
+import com.example.chatapp.features.advertise.ChooseStatusScreen
+import com.example.chatapp.features.advertise.CreateNewAudienceScreen
+import com.example.chatapp.features.advertise.BudgetScreen
+import com.example.chatapp.features.advertise.DesignAdScreen
+import com.example.chatapp.features.advertise.EditInterestsScreen
+import com.example.chatapp.features.advertise.EditLocationScreen
+import com.example.chatapp.features.advertise.AdDetailsScreen
+import com.example.chatapp.features.advertise.AdPerformanceScreen
+import com.example.chatapp.features.advertise.ManageAdsScreen
+import com.example.chatapp.features.advertise.ManageAdsViewModel
+import com.example.chatapp.features.advertise.MediaSelectionScreen
+import com.example.chatapp.features.advertise.PreviewAdScreen
+import com.example.chatapp.features.advertise.ReviewAdScreen
 import com.example.chatapp.features.broadcast.BroadcastChatScreen
 import com.example.chatapp.features.broadcast.BroadcastDraftScreen
 import com.example.chatapp.features.broadcast.BroadcastHomeScreen
@@ -55,6 +72,9 @@ class MainActivity : ComponentActivity() {
             WdsTheme {
                 val navController = rememberNavController()
 
+                val tabRoutes = remember { setOf("chat_list", Screen.Tools.route) }
+                var dismissDown by remember { mutableStateOf(false) }
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -64,58 +84,95 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = "chat_list",
                         enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
+                            val betweenTabs = initialState.destination.route in tabRoutes &&
+                                    targetState.destination.route in tabRoutes
+                            if (betweenTabs) {
+                                EnterTransition.None
+                            } else {
+                                slideInHorizontally(
+                                    initialOffsetX = { it },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                ) + fadeIn(
+                                    animationSpec = tween(
+                                        durationMillis = 150,
+                                        delayMillis = 150
+                                    )
                                 )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
+                            }
                         },
                         exitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { -it / 3 },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
+                            val betweenTabs = initialState.destination.route in tabRoutes &&
+                                    targetState.destination.route in tabRoutes
+                            if (betweenTabs) {
+                                ExitTransition.None
+                            } else {
+                                slideOutHorizontally(
+                                    targetOffsetX = { -it / 3 },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                ) + fadeOut(
+                                    animationSpec = tween(
+                                        durationMillis = 150
+                                    )
                                 )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
-                                )
-                            )
+                            }
                         },
                         popEnterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { -it / 3 },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
+                            val betweenTabs = initialState.destination.route in tabRoutes &&
+                                    targetState.destination.route in tabRoutes
+                            if (betweenTabs || dismissDown) {
+                                EnterTransition.None
+                            } else {
+                                slideInHorizontally(
+                                    initialOffsetX = { -it / 3 },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                ) + fadeIn(
+                                    animationSpec = tween(
+                                        durationMillis = 150,
+                                        delayMillis = 150
+                                    )
                                 )
-                            ) + fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 150,
-                                    delayMillis = 150
-                                )
-                            )
+                            }
                         },
                         popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { it },
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = FastOutSlowInEasing
+                            val betweenTabs = initialState.destination.route in tabRoutes &&
+                                    targetState.destination.route in tabRoutes
+                            if (betweenTabs) {
+                                ExitTransition.None
+                            } else if (dismissDown) {
+                                dismissDown = false
+                                slideOutVertically(
+                                    targetOffsetY = { it },
+                                    animationSpec = tween(
+                                        durationMillis = 350,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                ) + fadeOut(
+                                    animationSpec = tween(
+                                        durationMillis = 200
+                                    )
                                 )
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 150
+                            } else {
+                                slideOutHorizontally(
+                                    targetOffsetX = { it },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                ) + fadeOut(
+                                    animationSpec = tween(
+                                        durationMillis = 150
+                                    )
                                 )
-                            )
+                            }
                         }
                     ) {
 
@@ -381,8 +438,80 @@ class MainActivity : ComponentActivity() {
                             onToolsClick = { /* Already on Tools */ },
                             onBroadcastClick = {
                                 navController.navigate(Screen.BroadcastHome.route)
+                            },
+                            onAdvertiseClick = {
+                                navController.navigate("advertise_flow")
+                            },
+                            onManageAdsClick = {
+                                navController.navigate(Screen.ManageAds.route)
                             }
                         )
+                    }
+
+                    composable(
+                        route = Screen.ManageAds.route
+                    ) {
+                        val manageVm: ManageAdsViewModel = hiltViewModel()
+                        ManageAdsScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            onCreateAdClick = {
+                                navController.navigate("advertise_flow")
+                            },
+                            onAdClick = { ad ->
+                                manageVm.store.selectedAd = ad
+                                navController.navigate(Screen.AdDetails.route)
+                            },
+                            createdAds = manageVm.store.ads,
+                            showSnackbar = manageVm.store.pendingSnackbar,
+                            onSnackbarShown = { manageVm.store.onSnackbarShown() }
+                        )
+                    }
+
+                    composable(
+                        route = Screen.AdDetails.route
+                    ) {
+                        val manageVm: ManageAdsViewModel = hiltViewModel()
+                        val ad = manageVm.store.selectedAd
+                        if (ad != null) {
+                            AdDetailsScreen(
+                                ad = ad,
+                                onNavigateBack = { navController.popBackStack() },
+                                onSeePerformanceDetails = {
+                                    navController.navigate(Screen.AdPerformance.route)
+                                },
+                                onRecreateAd = {
+                                    navController.navigate("advertise_flow")
+                                },
+                                onAdPreviewClick = {
+                                    navController.navigate(Screen.AdPreviewFromDetails.route)
+                                }
+                            )
+                        }
+                    }
+
+                    composable(
+                        route = Screen.AdPreviewFromDetails.route
+                    ) {
+                        val manageVm: ManageAdsViewModel = hiltViewModel()
+                        val ad = manageVm.store.selectedAd
+                        PreviewAdScreen(
+                            onNavigateBack = { navController.popBackStack() },
+                            selectedMediaUri = ad?.imageUrl,
+                            showCloseButton = true
+                        )
+                    }
+
+                    composable(
+                        route = Screen.AdPerformance.route
+                    ) {
+                        val manageVm: ManageAdsViewModel = hiltViewModel()
+                        val ad = manageVm.store.selectedAd
+                        if (ad != null) {
+                            AdPerformanceScreen(
+                                ad = ad,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
                     }
                     
                     composable(
@@ -468,6 +597,300 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     
+                    // Advertise Flow (nested nav graph to share AdCreationViewModel)
+                    navigation(
+                        startDestination = Screen.AdvertiseMediaSelection.route,
+                        route = "advertise_flow"
+                    ) {
+                        composable(
+                            route = Screen.AdvertiseMediaSelection.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            MediaSelectionScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNextClick = { mediaUri ->
+                                    if (mediaUri != null) {
+                                        adVm.selectedMediaUri = mediaUri
+                                    }
+                                    navController.navigate(Screen.AdvertiseDesignAd.route)
+                                },
+                                onChooseStatus = {
+                                    navController.navigate(Screen.ChooseStatus.route)
+                                },
+                                onChooseCatalog = {
+                                    navController.navigate(Screen.ChooseCatalog.route)
+                                }
+                            )
+                        }
+
+                        composable(
+                            route = Screen.ChooseStatus.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            ChooseStatusScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onMediaConfirmed = { uri ->
+                                    adVm.selectedMediaUri = uri.toString()
+                                    navController.navigate(Screen.AdvertiseDesignAd.route)
+                                }
+                            )
+                        }
+
+                        composable(
+                            route = Screen.ChooseCatalog.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            ChooseCatalogScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onMediaConfirmed = { uri ->
+                                    adVm.selectedMediaUri = uri.toString()
+                                    navController.navigate(Screen.AdvertiseDesignAd.route)
+                                }
+                            )
+                        }
+
+                        composable(
+                            route = Screen.AdvertiseDesignAd.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            DesignAdScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNextClick = {
+                                    navController.navigate(Screen.AdvertiseAudience.route)
+                                },
+                                onPreviewClick = {
+                                    navController.navigate(Screen.AdvertisePreview.route)
+                                },
+                                selectedMediaUri = adVm.selectedMediaUri,
+                                adViewModel = adVm
+                            )
+                        }
+
+                        composable(
+                            route = Screen.AdvertiseAudience.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            AudienceScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNextClick = {
+                                    navController.navigate(Screen.AdvertiseBudget.route)
+                                },
+                                onCreateNewAudience = {
+                                    adVm.editingAudienceId = null
+                                    navController.navigate(Screen.CreateNewAudience.route)
+                                },
+                                onEditAudience = { audienceId ->
+                                    adVm.editingAudienceId = audienceId
+                                    navController.navigate(Screen.CreateNewAudience.route)
+                                },
+                                adViewModel = adVm
+                            )
+                        }
+
+                        composable(
+                            route = Screen.CreateNewAudience.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            CreateNewAudienceScreen(
+                                onNavigateBack = {
+                                    adVm.editingAudienceId = null
+                                    navController.popBackStack()
+                                },
+                                onSave = { navController.popBackStack() },
+                                onEditLocation = { currentLocation ->
+                                    adVm.editingLocations.clear()
+                                    adVm.editingLocations.addAll(
+                                        currentLocation.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                                    )
+                                    navController.navigate(Screen.EditLocation.route)
+                                },
+                                onEditInterests = { currentInterests ->
+                                    adVm.editingInterests.clear()
+                                    adVm.editingInterests.addAll(
+                                        currentInterests.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                                    )
+                                    navController.navigate(Screen.EditInterests.route)
+                                },
+                                adViewModel = adVm
+                            )
+                        }
+
+                        composable(
+                            route = Screen.EditInterests.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            EditInterestsScreen(
+                                onNavigateBack = {
+                                    adVm.editingInterests.clear()
+                                    navController.popBackStack()
+                                },
+                                onSave = { interests ->
+                                    adVm.editingInterests.clear()
+                                    adVm.editingInterests.addAll(interests)
+                                    navController.popBackStack()
+                                },
+                                initialInterests = adVm.editingInterests.toList()
+                            )
+                        }
+
+                        composable(
+                            route = Screen.EditLocation.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            EditLocationScreen(
+                                onNavigateBack = {
+                                    adVm.editingLocations.clear()
+                                    navController.popBackStack()
+                                },
+                                onSave = { locations ->
+                                    adVm.editingLocations.clear()
+                                    adVm.editingLocations.addAll(locations)
+                                    navController.popBackStack()
+                                },
+                                initialLocations = adVm.editingLocations.toList()
+                            )
+                        }
+
+                        composable(
+                            route = Screen.AdvertiseBudget.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            BudgetScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNextClick = {
+                                    navController.navigate(Screen.AdvertiseReviewAd.route)
+                                },
+                                adViewModel = adVm
+                            )
+                        }
+
+                        composable(
+                            route = Screen.AdvertiseReviewAd.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            ReviewAdScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onCreateAdClick = {
+                                    adVm.createAd()
+                                    dismissDown = true
+                                    navController.popBackStack("advertise_flow", inclusive = true)
+                                    val currentRoute = navController.currentBackStackEntry?.destination?.route
+                                    if (currentRoute != Screen.ManageAds.route) {
+                                        navController.navigate(Screen.ManageAds.route)
+                                    }
+                                },
+                                onEditAdPreview = {
+                                    navController.navigate(Screen.ReviewDesignAd.route)
+                                },
+                                onEditAudience = {
+                                    navController.navigate(Screen.ReviewAudience.route)
+                                },
+                                onEditBudget = {
+                                    navController.navigate(Screen.ReviewBudget.route)
+                                },
+                                adViewModel = adVm
+                            )
+                        }
+
+                        composable(
+                            route = Screen.AdvertisePreview.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            PreviewAdScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                selectedMediaUri = adVm.selectedMediaUri
+                            )
+                        }
+
+                        // Review-mode screens (opened from ReviewAdScreen, dismiss returns to review)
+                        composable(
+                            route = Screen.ReviewDesignAd.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            DesignAdScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNextClick = { },
+                                reviewMode = true,
+                                selectedMediaUri = adVm.selectedMediaUri,
+                                adViewModel = adVm
+                            )
+                        }
+
+                        composable(
+                            route = Screen.ReviewAudience.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            AudienceScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNextClick = { },
+                                onCreateNewAudience = {
+                                    adVm.editingAudienceId = null
+                                    navController.navigate(Screen.CreateNewAudience.route)
+                                },
+                                onEditAudience = { audienceId ->
+                                    adVm.editingAudienceId = audienceId
+                                    navController.navigate(Screen.CreateNewAudience.route)
+                                },
+                                reviewMode = true,
+                                adViewModel = adVm
+                            )
+                        }
+
+                        composable(
+                            route = Screen.ReviewBudget.route
+                        ) { entry ->
+                            val parentEntry = remember(entry) {
+                                navController.getBackStackEntry("advertise_flow")
+                            }
+                            val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+                            BudgetScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNextClick = { },
+                                reviewMode = true,
+                                adViewModel = adVm
+                            )
+                        }
+                    }
+
                     // Design System Library Routes
                     composable(
                         route = Screen.DesignSystemLibrary.route

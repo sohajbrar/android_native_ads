@@ -1,5 +1,6 @@
 package com.example.chatapp.features.chat.components
 
+import android.view.SoundEffectConstants
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -29,6 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.chatapp.R
@@ -57,6 +59,7 @@ fun ChatContentView(
     // Cache theme lookups for performance
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
+    val view = LocalView.current
 
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -458,6 +461,7 @@ fun ChatContentView(
                 ) {
                     FloatingActionButton(
                         onClick = {
+                            view.playSoundEffect(SoundEffectConstants.CLICK)
                             scope.launch {
                                 if (messages.isNotEmpty()) {
                                     listState.animateScrollToItem(messages.size - 1)

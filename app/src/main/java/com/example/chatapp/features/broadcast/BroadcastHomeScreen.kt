@@ -2,8 +2,9 @@
 
 package com.example.chatapp.features.broadcast
 
+import android.view.SoundEffectConstants
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,6 +65,7 @@ fun BroadcastHomeScreen(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     val uiState by viewModel.uiState.collectAsState()
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -81,7 +84,7 @@ fun BroadcastHomeScreen(
                 title = "Business broadcasts",
                 onNavigateBack = onNavigateBack,
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK) }) {
                         Icon(
                             imageVector = Icons.Outlined.MoreVert,
                             contentDescription = "More options",
@@ -280,6 +283,7 @@ private fun BroadcastMessageRow(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     val sentDateText = remember(sentMessage.message.timestamp) {
         val formatter = SimpleDateFormat("MMM d", Locale.getDefault())
@@ -289,7 +293,7 @@ private fun BroadcastMessageRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(
                 horizontal = dimensions.wdsSpacingDouble,
                 vertical = dimensions.wdsSpacingSinglePlus
@@ -340,7 +344,7 @@ private fun BroadcastMessageRow(
         }
 
         IconButton(
-            onClick = { },
+            onClick = { view.playSoundEffect(SoundEffectConstants.CLICK) },
             modifier = Modifier.size(40.dp)
         ) {
             Icon(
@@ -360,6 +364,7 @@ private fun AudiencesTab(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     if (conversations.isEmpty()) {
         Box(
@@ -383,7 +388,7 @@ private fun AudiencesTab(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
+                        .clickableWithSound {
                             onAudienceClick(
                                 conversation.conversationId,
                                 conversation.title ?: "Untitled audience",
@@ -433,7 +438,7 @@ private fun AudiencesTab(
                     }
 
                     IconButton(
-                        onClick = { },
+                        onClick = { view.playSoundEffect(SoundEffectConstants.CLICK) },
                         modifier = Modifier.size(40.dp)
                     ) {
                         Icon(

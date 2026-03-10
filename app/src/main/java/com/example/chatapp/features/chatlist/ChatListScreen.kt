@@ -2,10 +2,11 @@
 
 package com.example.chatapp.features.chatlist
 
+import android.view.SoundEffectConstants
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.*
 import com.example.chatapp.wds.theme.WdsTheme
 import com.example.chatapp.wds.theme.BaseColors
@@ -40,6 +41,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import com.example.chatapp.R
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,6 +85,7 @@ fun ChatListScreen(
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val view = LocalView.current
 
 
 
@@ -195,7 +198,7 @@ fun ChatListScreen(
 
                 // New Chat FAB
                 FloatingActionButton(
-                    onClick = onNewChatClick,
+                    onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onNewChatClick() },
                     containerColor = WdsTheme.colors.colorAccent,
                     contentColor = WdsTheme.colors.colorContentOnAccent
                 ) {
@@ -244,6 +247,8 @@ private fun ChatListMainContent(
     onBroadcastChatClick: (conversationId: String, title: String, recipientCount: Int, linkedListCount: Int) -> Unit,
     scope: CoroutineScope
 ) {
+    val view = LocalView.current
+
     LazyColumn(
         state = listState,
         modifier = Modifier
@@ -272,6 +277,7 @@ private fun ChatListMainContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = {
+                            view.playSoundEffect(SoundEffectConstants.CLICK)
                             onSearchActiveChange(false)
                             onSearchQueryChange("")
                             keyboardController?.hide()
@@ -295,7 +301,7 @@ private fun ChatListMainContent(
                                         contentDescription = "Clear",
                                         modifier = Modifier
                                             .size(dimensions.wdsIconSizeMedium)
-                                            .clickable { onSearchQueryChange("") },
+                                            .clickableWithSound { onSearchQueryChange("") },
                                         tint = colors.colorContentDeemphasized
                                     )
                                 }
@@ -314,7 +320,7 @@ private fun ChatListMainContent(
                             .height(48.dp)
                             .clip(shapes.circle)
                             .background(colors.colorSurfaceHighlight)
-                            .clickable { onSearchActiveChange(true) }
+                            .clickableWithSound { onSearchActiveChange(true) }
                             .padding(
                                 horizontal = dimensions.wdsSpacingDouble,
                                 vertical = dimensions.wdsSpacingSingle
@@ -483,6 +489,8 @@ private fun ChatListTopBar(
     onInsightsClick: () -> Unit = {},
     onLogoClick: () -> Unit = {}
 ) {
+    val view = LocalView.current
+
     TopAppBar(
         title = {
             Icon(
@@ -490,14 +498,14 @@ private fun ChatListTopBar(
                 contentDescription = "WhatsApp",
                 modifier = Modifier
                     .height(21.dp)
-                    .clickable { onLogoClick() },
-                tint = Color.Unspecified
+                    .clickableWithSound { onLogoClick() },
+                tint = WdsTheme.colors.colorContentDefault
             )
         },
         actions = {
             // Insights button (only shown for backdrop variant)
             if (showInsightsButton) {
-                IconButton(onClick = onInsightsClick) {
+                IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onInsightsClick() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_insights),
                         contentDescription = "Insights",
@@ -506,14 +514,14 @@ private fun ChatListTopBar(
                 }
             }
 
-            IconButton(onClick = onCameraClick) {
+            IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onCameraClick() }) {
                     Icon(
                         imageVector = Icons.Outlined.PhotoCamera,
                         contentDescription = "Camera",
                         tint = WdsTheme.colors.colorContentDefault
                     )
                 }
-            IconButton(onClick = onMoreClick) {
+            IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onMoreClick() }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More options",
@@ -604,7 +612,7 @@ private fun ArchivedRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickableWithSound { onClick() }
             .padding(
                 horizontal = WdsTheme.dimensions.wdsSpacingDouble,
                 vertical = WdsTheme.dimensions.wdsSpacingHalf
@@ -652,6 +660,8 @@ fun ChatListBottomBar(
     onUpdatesClick: () -> Unit = {},
     onToolsClick: () -> Unit = {}
 ) {
+    val view = LocalView.current
+
     Column {
         WDSDivider()
         NavigationBar(
@@ -661,7 +671,7 @@ fun ChatListBottomBar(
         // Tab 1: Chats (leftmost)
         NavigationBarItem(
             selected = selectedTab == 0,
-            onClick = onChatsClick,
+            onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onChatsClick() },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = WdsTheme.colors.colorAccentEmphasized,
                 selectedTextColor = WdsTheme.colors.colorContentDefault,
@@ -705,7 +715,7 @@ fun ChatListBottomBar(
         // Tab 2: Calls (second from left)
         NavigationBarItem(
             selected = selectedTab == 1,
-            onClick = onCallsClick,
+            onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onCallsClick() },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = WdsTheme.colors.colorAccentEmphasized,
                 selectedTextColor = WdsTheme.colors.colorContentDefault,
@@ -747,7 +757,7 @@ fun ChatListBottomBar(
         // Tab 3: Updates (third from left)
         NavigationBarItem(
             selected = selectedTab == 2,
-            onClick = onUpdatesClick,
+            onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onUpdatesClick() },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = WdsTheme.colors.colorAccentEmphasized,
                 selectedTextColor = WdsTheme.colors.colorContentDefault,
@@ -783,7 +793,7 @@ fun ChatListBottomBar(
         // Tab 4: Tools (rightmost) - Business tools
         NavigationBarItem(
             selected = selectedTab == 3,
-            onClick = onToolsClick,
+            onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onToolsClick() },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = WdsTheme.colors.colorAccentEmphasized,
                 selectedTextColor = WdsTheme.colors.colorContentDefault,

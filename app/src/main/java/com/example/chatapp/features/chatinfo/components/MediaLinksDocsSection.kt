@@ -1,7 +1,7 @@
 package com.example.chatapp.features.chatinfo.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,7 +38,7 @@ fun MediaLinksDocsSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onViewAll() }
+                .clickableWithSound { onViewAll() }
                 .padding(horizontal = WdsTheme.dimensions.wdsSpacingTriple, vertical = WdsTheme.dimensions.wdsSpacingDouble),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -96,7 +96,7 @@ fun MediaLinksDocsSection(
                                 .size(88.dp)
                                 .clip(WdsTheme.shapes.halfPlus)
                                 .background(colors.colorSurfaceEmphasized)
-                                .clickable { onViewAll() },
+                                .clickableWithSound { onViewAll() },
                             contentAlignment = Alignment.Center
                         ) {
                             Text(

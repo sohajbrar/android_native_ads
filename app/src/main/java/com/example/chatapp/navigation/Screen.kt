@@ -19,6 +19,29 @@ sealed class Screen(val route: String) {
     data object BroadcastReview : Screen("broadcast_review")
     data object MessageDetails : Screen("message_details")
 
+    // Advertise flow screens
+    data object AdvertiseMediaSelection : Screen("advertise_media_selection")
+    data object AdvertiseDesignAd : Screen("advertise_design_ad")
+    data object AdvertiseAudience : Screen("advertise_audience")
+    data object AdvertiseBudget : Screen("advertise_budget")
+    data object AdvertiseReviewAd : Screen("advertise_review_ad")
+    data object AdvertisePreview : Screen("advertise_preview")
+    data object CreateNewAudience : Screen("create_new_audience")
+    data object EditLocation : Screen("edit_location")
+    data object EditInterests : Screen("edit_interests")
+    data object ChooseStatus : Screen("choose_status")
+    data object ChooseCatalog : Screen("choose_catalog")
+
+    // Review-mode screens (opened from ReviewAdScreen, dismissible with X)
+    data object ReviewDesignAd : Screen("review_design_ad")
+    data object ReviewAudience : Screen("review_audience")
+    data object ReviewBudget : Screen("review_budget")
+
+    data object ManageAds : Screen("manage_ads")
+    data object AdDetails : Screen("ad_details")
+    data object AdPreviewFromDetails : Screen("ad_preview_from_details")
+    data object AdPerformance : Screen("ad_performance")
+
     // Design system screens
     data object DesignSystemLibrary : Screen("design_system_library")
     data object Colors : Screen("colors")

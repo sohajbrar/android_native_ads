@@ -1,12 +1,13 @@
 package com.example.chatapp.features.chat.components
 
+import android.view.SoundEffectConstants
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -72,6 +74,7 @@ fun ChatTopBar(
     modifier: Modifier = Modifier
 ) {
     val colors = WdsTheme.colors
+    val view = LocalView.current
 
     val titleOffset by animateIntAsState(
         targetValue = if (!hideBackButton) 0 else -40,
@@ -88,7 +91,7 @@ fun ChatTopBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .offset(x = titleOffset.dp)
-                    .clickable { onHeaderClick() },
+                    .clickableWithSound { onHeaderClick() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ChatTopBarAvatar(
@@ -177,7 +180,7 @@ fun ChatTopBar(
                     }
             ) {
                 IconButton(
-                    onClick = onBackClick,
+                    onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onBackClick() },
                     enabled = !hideBackButton
                 ) {
                     Icon(
@@ -327,6 +330,8 @@ private fun ChatTopBarActions(
     onAudioCallClick: () -> Unit,
     onMoreClick: () -> Unit
 ) {
+    val view = LocalView.current
+
     val insightsButtonAlpha by animateFloatAsState(
         targetValue = if (showInsightsButton) 1f else 0f,
         animationSpec = spring(
@@ -355,7 +360,7 @@ private fun ChatTopBarActions(
                 }
         ) {
             IconButton(
-                onClick = onInsightsClick,
+                onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onInsightsClick() },
                 enabled = showInsightsButton
             ) {
                 Icon(
@@ -470,7 +475,7 @@ private fun ChatTopBarActions(
     if (showInsightsButton) {
         var showCallOptions by remember { mutableStateOf(false) }
         Box {
-            IconButton(onClick = { showCallOptions = !showCallOptions }) {
+            IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); showCallOptions = !showCallOptions }) {
                 Icon(
                     imageVector = videoCallIcon,
                     contentDescription = "Call",
@@ -513,14 +518,14 @@ private fun ChatTopBarActions(
             }
         }
     } else {
-        IconButton(onClick = onVideoCallClick) {
+        IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onVideoCallClick() }) {
             Icon(
                 imageVector = videoCallIcon,
                 contentDescription = "Video Call",
                 tint = colors.colorContentDefault
             )
         }
-        IconButton(onClick = onAudioCallClick) {
+        IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onAudioCallClick() }) {
             Icon(
                 imageVector = phoneCallIcon,
                 contentDescription = "Audio Call",
@@ -529,7 +534,7 @@ private fun ChatTopBarActions(
         }
     }
 
-    IconButton(onClick = onMoreClick) {
+    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onMoreClick() }) {
         Icon(
             imageVector = Icons.Default.MoreVert,
             contentDescription = "More Options",

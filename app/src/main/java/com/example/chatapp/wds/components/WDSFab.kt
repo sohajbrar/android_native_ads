@@ -12,6 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import android.view.SoundEffectConstants
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.example.chatapp.wds.theme.WdsTheme
 
@@ -60,6 +62,9 @@ fun WDSFab(
     contentDescription: String? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
+    val view = LocalView.current
+    val onClickWithSound = { view.playSoundEffect(SoundEffectConstants.CLICK); onClick() }
+
     val containerColor = when (style) {
         WDSFabStyle.PRIMARY -> WdsTheme.colors.colorAccent
         WDSFabStyle.SECONDARY -> WdsTheme.colors.colorSurfaceElevatedDefault
@@ -85,7 +90,7 @@ fun WDSFab(
     when (size) {
         WDSFabSize.SMALL -> {
             SmallFloatingActionButton(
-                onClick = onClick,
+                onClick = onClickWithSound,
                 modifier = modifier,
                 shape = shape,
                 containerColor = containerColor,
@@ -101,7 +106,7 @@ fun WDSFab(
         }
         WDSFabSize.NORMAL -> {
             FloatingActionButton(
-                onClick = onClick,
+                onClick = onClickWithSound,
                 modifier = modifier,
                 shape = shape,
                 containerColor = containerColor,
@@ -117,7 +122,7 @@ fun WDSFab(
         }
         WDSFabSize.LARGE -> {
             LargeFloatingActionButton(
-                onClick = onClick,
+                onClick = onClickWithSound,
                 modifier = modifier,
                 shape = shape,
                 containerColor = containerColor,

@@ -2,8 +2,9 @@
 
 package com.example.chatapp.features.tools
 
+import android.view.SoundEffectConstants
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,6 +60,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
@@ -69,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import com.example.chatapp.R
 import com.example.chatapp.features.chatlist.ChatListBottomBar
 import com.example.chatapp.wds.components.WDSDivider
+import com.example.chatapp.wds.components.wdsCardBorder
 import com.example.chatapp.wds.theme.WdsTheme
 
 @Composable
@@ -81,11 +84,14 @@ fun ToolsScreen(
     onToolsClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
-    onBroadcastClick: () -> Unit = {}
+    onBroadcastClick: () -> Unit = {},
+    onAdvertiseClick: () -> Unit = {},
+    onManageAdsClick: () -> Unit = {}
 ) {
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     Scaffold(
         containerColor = colors.colorSurfaceDefault,
@@ -99,14 +105,14 @@ fun ToolsScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = onSearchClick) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onSearchClick() }) {
                         Icon(
                             imageVector = Icons.Outlined.Search,
                             contentDescription = "Search",
                             tint = colors.colorContentDefault
                         )
                     }
-                    IconButton(onClick = onMoreClick) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onMoreClick() }) {
                         Icon(
                             imageVector = Icons.Outlined.MoreVert,
                             contentDescription = "More options",
@@ -201,14 +207,16 @@ fun ToolsScreen(
                 SettingsRow(
                     icon = Icons.Outlined.Campaign,
                     title = "Advertise",
-                    subtitle = "Create ads that lead to WhatsApp"
+                    subtitle = "Create ads that lead to WhatsApp",
+                    onClick = onAdvertiseClick
                 )
             }
             item {
                 SettingsRow(
                     icon = Icons.Outlined.Group,
                     title = "Manage ads",
-                    subtitle = "See all your ads in one place"
+                    subtitle = "See all your ads in one place",
+                    onClick = onManageAdsClick
                 )
             }
             item {
@@ -544,7 +552,7 @@ private fun MetricTileWithCustomIcon(
         colors = CardDefaults.cardColors(
             containerColor = colors.colorSurfaceDefault
         ),
-        border = CardDefaults.outlinedCardBorder()
+        border = wdsCardBorder()
     ) {
         Column(
             modifier = Modifier
@@ -600,7 +608,7 @@ private fun MetricTile(
         colors = CardDefaults.cardColors(
             containerColor = colors.colorSurfaceDefault
         ),
-        border = CardDefaults.outlinedCardBorder()
+        border = wdsCardBorder()
     ) {
         Column(
             modifier = Modifier
@@ -685,7 +693,7 @@ private fun RecommendationCard(
         colors = CardDefaults.cardColors(
             containerColor = colors.colorSurfaceDefault
         ),
-        border = CardDefaults.outlinedCardBorder()
+        border = wdsCardBorder()
     ) {
         Box {
             Row(
@@ -731,7 +739,7 @@ private fun RecommendationCard(
                             .defaultMinSize(minWidth = 64.dp, minHeight = 32.dp)
                             .clip(WdsTheme.shapes.circle)
                             .background(colors.colorAccent)
-                            .clickable { }
+                            .clickableWithSound { }
                             .padding(
                                 horizontal = dimensions.wdsSpacingDouble,
                                 vertical = 6.dp
@@ -768,7 +776,8 @@ private fun RecommendationCard(
 private fun SettingsRow(
     icon: ImageVector,
     title: String,
-    subtitle: String
+    subtitle: String,
+    onClick: () -> Unit = {}
 ) {
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
@@ -777,7 +786,7 @@ private fun SettingsRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickableWithSound(onClick = onClick)
             .padding(
                 horizontal = dimensions.wdsSpacingTriple,
                 vertical = dimensions.wdsSpacingDouble
@@ -823,7 +832,7 @@ private fun SettingsRowWithRes(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(
                 horizontal = dimensions.wdsSpacingTriple,
                 vertical = dimensions.wdsSpacingDouble

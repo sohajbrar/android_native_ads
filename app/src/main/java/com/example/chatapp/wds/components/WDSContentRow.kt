@@ -2,7 +2,6 @@ package com.example.chatapp.wds.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,7 +60,7 @@ fun WDSContentRow(
             .fillMaxWidth()
             .height(72.dp)
             .then(
-                if (onClick != null) Modifier.clickable { onClick() }
+                if (onClick != null) Modifier.clickableWithSound { onClick() }
                 else Modifier
             )
             .padding(

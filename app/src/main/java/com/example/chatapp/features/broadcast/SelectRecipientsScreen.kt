@@ -2,6 +2,7 @@
 
 package com.example.chatapp.features.broadcast
 
+import android.view.SoundEffectConstants
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,7 +11,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -222,6 +224,7 @@ private fun SelectRecipientsContent(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     var showComingSoonDialog by remember { mutableStateOf(false) }
 
@@ -240,7 +243,7 @@ private fun SelectRecipientsContent(
                 subtitle = "$formattedSelected of $formattedTotal selected",
                 onNavigateBack = onNavigateBack,
                 actions = {
-                    IconButton(onClick = { showComingSoonDialog = true }) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); showComingSoonDialog = true }) {
                         Icon(
                             imageVector = Icons.Outlined.Search,
                             contentDescription = "Search",
@@ -482,7 +485,7 @@ private fun SelectedListChip(
                     .size(20.dp)
                     .align(Alignment.BottomEnd)
                     .border(1.5.dp, colors.colorSurfaceDefault, CircleShape)
-                    .clickable { onRemove() }
+                    .clickableWithSound { onRemove() }
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -537,7 +540,7 @@ private fun SelectedContactChip(
                         .size(20.dp)
                         .align(Alignment.BottomEnd)
                         .border(1.5.dp, colors.colorSurfaceDefault, CircleShape)
-                        .clickable { onRemove() }
+                        .clickableWithSound { onRemove() }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
@@ -580,7 +583,7 @@ private fun SelectableListRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onToggle() }
+            .clickableWithSound { onToggle() }
             .padding(
                 horizontal = dimensions.wdsSpacingDouble,
                 vertical = dimensions.wdsSpacingSinglePlus
@@ -686,7 +689,7 @@ private fun SelectableContactRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onToggle() }
+            .clickableWithSound { onToggle() }
             .padding(
                 horizontal = dimensions.wdsSpacingDouble,
                 vertical = dimensions.wdsSpacingSinglePlus

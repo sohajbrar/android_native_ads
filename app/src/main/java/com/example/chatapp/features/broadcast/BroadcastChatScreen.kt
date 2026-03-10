@@ -1,5 +1,6 @@
 package com.example.chatapp.features.broadcast
 
+import android.view.SoundEffectConstants
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -7,7 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -246,13 +248,14 @@ private fun BroadcastChatTopBar(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     TopAppBar(
         title = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onHeaderClick() },
+                    .clickableWithSound { onHeaderClick() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
@@ -291,7 +294,7 @@ private fun BroadcastChatTopBar(
             }
         },
         navigationIcon = {
-            IconButton(onClick = onBackClick) {
+            IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onBackClick() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = "Back",
@@ -300,7 +303,7 @@ private fun BroadcastChatTopBar(
             }
         },
         actions = {
-            IconButton(onClick = onMoreClick) {
+            IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onMoreClick() }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More Options",
@@ -381,7 +384,7 @@ private fun AttachmentOption(
     val typography = WdsTheme.typography
 
     Column(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = modifier.clickableWithSound(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimensions.wdsSpacingSingle)
     ) {
@@ -466,7 +469,7 @@ private fun GalleryBottomSheet(
                                 colors.colorSurfaceHighlight,
                                 RoundedCornerShape(dimensions.wdsSpacingHalf)
                             )
-                            .clickable { },
+                            .clickableWithSound { },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

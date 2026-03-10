@@ -1,5 +1,6 @@
 package com.example.chatapp.features.chatinfo
 
+import android.view.SoundEffectConstants
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,6 +46,7 @@ fun ChatInfoScreen(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     // Track scroll state for collapsing header
     val listState = rememberLazyListState()
@@ -170,7 +173,7 @@ fun ChatInfoScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onBackClick() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -179,7 +182,7 @@ fun ChatInfoScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Show more options */ }) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK) }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
                             contentDescription = "More options",

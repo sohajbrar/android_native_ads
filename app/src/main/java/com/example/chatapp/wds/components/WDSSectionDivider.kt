@@ -1,6 +1,5 @@
 package com.example.chatapp.wds.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -41,7 +40,7 @@ fun WDSSupportedButton(
         color = colors.colorSurfaceHighlight,
         modifier = modifier
             .height(32.dp)
-            .clickable(role = Role.Button) { onClick() }
+            .clickableWithSound(role = Role.Button) { onClick() }
     ) {
         Box(
             contentAlignment = Alignment.Center,

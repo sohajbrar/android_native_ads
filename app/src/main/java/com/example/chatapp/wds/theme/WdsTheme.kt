@@ -35,7 +35,7 @@ fun WdsTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = colors ?: when {
-        darkTheme && businessMode -> WdsSemanticDarkColors()  // TODO: Create WdsSemanticBusinessDarkColors
+        darkTheme && businessMode -> WdsSemanticBusinessDarkColors()
         darkTheme && !businessMode -> WdsSemanticDarkColors()
         !darkTheme && businessMode -> WdsSemanticBusinessLightColors()
         else -> WdsSemanticLightColors()  // Consumer light mode

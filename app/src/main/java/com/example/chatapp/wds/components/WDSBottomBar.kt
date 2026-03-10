@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import android.view.SoundEffectConstants
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.example.chatapp.wds.theme.WdsTheme
 
@@ -42,6 +44,7 @@ fun WDSBottomBar(
     icon: ImageVector = Icons.AutoMirrored.Filled.ArrowForward,
     contentDescription: String? = "Next"
 ) {
+    val view = LocalView.current
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
@@ -71,7 +74,7 @@ fun WDSBottomBar(
             )
 
             FloatingActionButton(
-                onClick = onClick,
+                onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onClick() },
                 modifier = Modifier.size(dimensions.wdsTouchTargetComfortable),
                 containerColor = colors.colorAccent,
                 contentColor = colors.colorContentOnAccent,

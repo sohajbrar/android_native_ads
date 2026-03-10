@@ -1,8 +1,9 @@
 package com.example.chatapp.features.broadcast
 
+import android.view.SoundEffectConstants
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import com.example.chatapp.wds.components.clickableWithSound
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -86,6 +88,7 @@ fun BroadcastInfoScreen(
     val colors = WdsTheme.colors
     val dimensions = WdsTheme.dimensions
     val typography = WdsTheme.typography
+    val view = LocalView.current
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showComingSoonDialog by remember { mutableStateOf(false) }
@@ -126,7 +129,7 @@ fun BroadcastInfoScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onBackClick() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -135,7 +138,7 @@ fun BroadcastInfoScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showComingSoonDialog = true }) {
+                    IconButton(onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); showComingSoonDialog = true }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
                             contentDescription = "More options",
@@ -367,7 +370,7 @@ private fun AutomaticUpdatesRow(onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(
                 horizontal = dimensions.wdsSpacingTriple,
                 vertical = dimensions.wdsSpacingDouble
@@ -475,7 +478,7 @@ private fun EncryptionRow(onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(
                 horizontal = dimensions.wdsSpacingTriple,
                 vertical = dimensions.wdsSpacingDouble
@@ -532,7 +535,7 @@ private fun EditRecipientsRow(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(
                 start = dimensions.wdsSpacingDouble,
                 end = dimensions.wdsSpacingTriple,
@@ -580,7 +583,7 @@ private fun LinkedListRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(
                 start = dimensions.wdsSpacingDouble,
                 end = dimensions.wdsSpacingTriple,
@@ -637,7 +640,7 @@ private fun RecipientRow(user: UserEntity, onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(
                 start = dimensions.wdsSpacingDouble,
                 end = dimensions.wdsSpacingTriple,
@@ -745,7 +748,7 @@ private fun DeleteBroadcastRow(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickableWithSound(onClick = onClick)
             .padding(
                 horizontal = dimensions.wdsSpacingTriple,
                 vertical = dimensions.wdsSpacingDouble

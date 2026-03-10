@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import android.view.SoundEffectConstants
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.sp
 import com.example.chatapp.wds.theme.WdsTheme
 
@@ -33,6 +35,7 @@ fun WDSTabRow(
     onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     val colors = WdsTheme.colors
     val typography = WdsTheme.typography
 
@@ -60,7 +63,7 @@ fun WDSTabRow(
             val selected = selectedTabIndex == index
             Tab(
                 selected = selected,
-                onClick = { onTabSelected(index) },
+                onClick = { view.playSoundEffect(SoundEffectConstants.CLICK); onTabSelected(index) },
                 modifier = Modifier.defaultMinSize(minHeight = 46.dp),
                 text = {
                     Text(
