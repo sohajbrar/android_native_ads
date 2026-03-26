@@ -38,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -214,19 +216,14 @@ fun ReviewAdScreen(
             // Ad preview row
             ReviewRow(
                 avatarContent = {
-                    Box(
+                    AsyncImage(
+                        model = "android.resource://com.example.chatapp/drawable/avatar_my_status",
+                        contentDescription = "Business profile",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(colors.colorSurfaceEmphasized),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "LS",
-                            style = typography.body2Emphasized,
-                            color = colors.colorContentDefault
-                        )
-                    }
+                    )
                 },
                 title = "Ad preview",
                 subtitle = "Lucky Shrub",

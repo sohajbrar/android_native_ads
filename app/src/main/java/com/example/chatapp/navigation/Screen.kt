@@ -6,6 +6,13 @@ sealed class Screen(val route: String) {
     data object Calls : Screen("calls")
     data object Updates : Screen("updates")
     data object Tools : Screen("tools")
+
+    // Status viewer
+    data object StatusViewer : Screen("status_viewer/{statusIndex}/{includeMyStatus}") {
+        fun createRoute(statusIndex: Int, includeMyStatus: Boolean = false) =
+            "status_viewer/$statusIndex/$includeMyStatus"
+    }
+    data object MyStatusDetail : Screen("my_status_detail")
     
     // Feature screens
     data object NewChat : Screen("new_chat")

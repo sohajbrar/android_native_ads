@@ -80,7 +80,8 @@ fun ChatListScreen(
     onNewChatClick: () -> Unit = {},
     onMetaAIClick: () -> Unit = {},
     onDesignLibraryClick: () -> Unit = {},
-    onToolsClick: () -> Unit = {}
+    onToolsClick: () -> Unit = {},
+    onUpdatesClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
@@ -165,7 +166,7 @@ fun ChatListScreen(
                 callsBadgeCount = 0,
                 onChatsClick = { /* Already on chats */ },
                 onCallsClick = { /* Calls not implemented yet */ },
-                onUpdatesClick = { /* Updates not implemented yet */ },
+                onUpdatesClick = onUpdatesClick,
                 onToolsClick = onToolsClick
             )
         },

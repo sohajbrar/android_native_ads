@@ -54,6 +54,9 @@ import com.example.chatapp.features.broadcast.NewBusinessBroadcastScreen
 import com.example.chatapp.features.broadcast.SelectRecipientsScreen
 import com.example.chatapp.features.newchat.NewChatScreen
 import com.example.chatapp.features.tools.ToolsScreen
+import com.example.chatapp.features.updates.UpdatesScreen
+import com.example.chatapp.features.updates.StatusViewerScreen
+
 import com.example.chatapp.navigation.Screen
 import com.example.chatapp.ui.screens.DesignSystemLibraryScreen
 import com.example.chatapp.ui.screens.ColorsScreen
@@ -72,8 +75,10 @@ class MainActivity : ComponentActivity() {
             WdsTheme {
                 val navController = rememberNavController()
 
-                val tabRoutes = remember { setOf("chat_list", Screen.Tools.route) }
+                val tabRoutes = remember { setOf("chat_list", Screen.Tools.route, Screen.Updates.route) }
                 var dismissDown by remember { mutableStateOf(false) }
+                var pendingBoostMediaUri by remember { mutableStateOf<String?>(null) }
+                var enteredAdFlowFromBoost by remember { mutableStateOf(false) }
 
                 Box(
                     modifier = Modifier
@@ -198,6 +203,15 @@ class MainActivity : ComponentActivity() {
                             },
                             onToolsClick = {
                                 navController.navigate(Screen.Tools.route) {
+                                    popUpTo("chat_list") {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            onUpdatesClick = {
+                                navController.navigate(Screen.Updates.route) {
                                     popUpTo("chat_list") {
                                         saveState = true
                                     }
@@ -418,6 +432,87 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    // Updates Screen
+                    composable(
+                        route = Screen.Updates.route
+                    ) {
+                        UpdatesScreen(
+                            onNavigateToChats = {
+                                navController.navigate("chat_list") {
+                                    popUpTo("chat_list") {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            onStatusClick = { statusIndex ->
+                                navController.navigate(Screen.StatusViewer.createRoute(statusIndex))
+                            },
+                            onMyStatusClick = {
+                                navController.navigate(Screen.MyStatusDetail.route)
+                            },
+                            onCallsClick = { },
+                            onToolsClick = {
+                                navController.navigate(Screen.Tools.route) {
+                                    popUpTo("chat_list") {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
+                    }
+
+                    // My Status Detail screen
+                    composable(
+                        route = Screen.MyStatusDetail.route
+                    ) {
+                        com.example.chatapp.features.updates.MyStatusScreen(
+                            onBack = { navController.popBackStack() },
+                            onStatusClick = { mediaIndex ->
+                                navController.navigate(
+                                    Screen.StatusViewer.createRoute(
+                                        statusIndex = 0,
+                                        includeMyStatus = true
+                                    ) + "?mediaIndex=$mediaIndex"
+                                )
+                            }
+                        )
+                    }
+
+                    // Status Viewer (includes boost interstitial inline)
+                    composable(
+                        route = Screen.StatusViewer.route + "?mediaIndex={mediaIndex}",
+                        arguments = listOf(
+                            navArgument("statusIndex") { type = NavType.IntType },
+                            navArgument("includeMyStatus") { type = NavType.BoolType },
+                            navArgument("mediaIndex") {
+                                type = NavType.IntType
+                                defaultValue = 0
+                            }
+                        )
+                    ) { backStackEntry ->
+                        val statusIndex = backStackEntry.arguments?.getInt("statusIndex") ?: 0
+                        val includeMyStatus = backStackEntry.arguments?.getBoolean("includeMyStatus") ?: false
+                        val mediaIndex = backStackEntry.arguments?.getInt("mediaIndex") ?: 0
+                        StatusViewerScreen(
+                            initialUserIndex = statusIndex,
+                            initialMediaIndex = mediaIndex,
+                            includeMyStatus = includeMyStatus,
+                            onBack = {
+                                dismissDown = true
+                                navController.popBackStack()
+                            },
+                            onBoostClick = { creativeUrl ->
+                                pendingBoostMediaUri = creativeUrl
+                                enteredAdFlowFromBoost = true
+                                navController.navigate("advertise_flow")
+                            }
+                        )
+                    }
+
                     // Tools Screen
                     composable(
                         route = Screen.Tools.route
@@ -433,9 +528,17 @@ class MainActivity : ComponentActivity() {
                                     restoreState = true
                                 }
                             },
-                            onCallsClick = { /* Calls not implemented yet */ },
-                            onUpdatesClick = { /* Updates not implemented yet */ },
-                            onToolsClick = { /* Already on Tools */ },
+                            onCallsClick = { },
+                            onUpdatesClick = {
+                                navController.navigate(Screen.Updates.route) {
+                                    popUpTo("chat_list") {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            onToolsClick = { },
                             onBroadcastClick = {
                                 navController.navigate(Screen.BroadcastHome.route)
                             },
@@ -609,6 +712,18 @@ class MainActivity : ComponentActivity() {
                                 navController.getBackStackEntry("advertise_flow")
                             }
                             val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
+
+                            val boostUri = pendingBoostMediaUri
+                            if (boostUri != null) {
+                                LaunchedEffect(Unit) {
+                                    pendingBoostMediaUri = null
+                                    adVm.selectedMediaUri = boostUri
+                                    navController.navigate(Screen.AdvertiseDesignAd.route) {
+                                        popUpTo(Screen.AdvertiseMediaSelection.route) { inclusive = true }
+                                    }
+                                }
+                            }
+
                             MediaSelectionScreen(
                                 onNavigateBack = { navController.popBackStack() },
                                 onNextClick = { mediaUri ->
@@ -666,7 +781,14 @@ class MainActivity : ComponentActivity() {
                             }
                             val adVm: AdCreationViewModel = hiltViewModel(parentEntry)
                             DesignAdScreen(
-                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateBack = {
+                                    if (enteredAdFlowFromBoost) {
+                                        enteredAdFlowFromBoost = false
+                                        navController.popBackStack("advertise_flow", inclusive = true)
+                                    } else {
+                                        navController.popBackStack()
+                                    }
+                                },
                                 onNextClick = {
                                     navController.navigate(Screen.AdvertiseAudience.route)
                                 },
@@ -802,6 +924,7 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.popBackStack() },
                                 onCreateAdClick = {
                                     adVm.createAd()
+                                    enteredAdFlowFromBoost = false
                                     dismissDown = true
                                     navController.popBackStack("advertise_flow", inclusive = true)
                                     val currentRoute = navController.currentBackStackEntry?.destination?.route

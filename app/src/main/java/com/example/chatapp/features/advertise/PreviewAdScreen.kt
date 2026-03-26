@@ -150,19 +150,14 @@ private fun FacebookPreview(selectedMediaUri: String? = null) {
                     .padding(dimensions.wdsSpacingSinglePlus),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
+                AsyncImage(
+                    model = "android.resource://com.example.chatapp/drawable/avatar_my_status",
+                    contentDescription = "Business profile",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(colors.colorSurfaceEmphasized),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "LS",
-                        style = typography.body2Emphasized,
-                        color = colors.colorContentDefault
-                    )
-                }
+                )
                 Spacer(modifier = Modifier.width(dimensions.wdsSpacingSingle))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -312,19 +307,14 @@ private fun InstagramPreview(selectedMediaUri: String? = null) {
                     .padding(dimensions.wdsSpacingSinglePlus),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
+                AsyncImage(
+                    model = "android.resource://com.example.chatapp/drawable/avatar_my_status",
+                    contentDescription = "Business profile",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(colors.colorSurfaceEmphasized),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "LS",
-                        style = typography.body3,
-                        color = colors.colorContentDefault
-                    )
-                }
+                )
                 Spacer(modifier = Modifier.width(dimensions.wdsSpacingSingle))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(

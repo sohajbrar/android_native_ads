@@ -194,19 +194,14 @@ fun DesignAdScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(dimensions.wdsSpacingSingle)
                     ) {
-                        Box(
+                        AsyncImage(
+                            model = "android.resource://com.example.chatapp/drawable/avatar_my_status",
+                            contentDescription = "Business profile",
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(colors.colorSurfaceEmphasized),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "LS",
-                                style = typography.body2Emphasized,
-                                color = colors.colorContentDefault
-                            )
-                        }
+                        )
                         Column {
                             Text(
                                 text = "Lucky Shrub",
